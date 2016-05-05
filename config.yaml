@@ -54,9 +54,10 @@ check_update: false
 # ---------------------------------------------------------------------------------------
 # What shell commands will be executed on provision?
 # ---------------------------------------------------------------------------------------
-provision: 
+provision: |
     sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-6.noarch.rpm
     sudo rpm -Uvh http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+    
     sudo yum -y update
     sudo yum -y install tcl make tcl-devel gcc build-essential openssl libcurl4-openssl-dev zlib1g zlib1g-dev zlibc libgcrypt11 libgcrypt11-dev zlib-devel openssl-devel unzip tcl-mysqltcl mysql-server mysql-client mysql irssi ngircd
     
@@ -64,7 +65,7 @@ provision:
     tar zxvf eggdrop1.6.21.tar.gz
     cd eggdrop1.6.21
     ./configure
-    make config 
+    make config
     make
     make install DEST=/home/vagrant/eggdrop
     ln -s /home/vagrant/eggdrop/modules-1.6.21/ /home/vagrant/eggdrop/modules
@@ -73,6 +74,7 @@ provision:
     
     (crontab -l; echo "@reboot nohup /home/vagrant/eggdrop/eggdrop -m /vagrant/eggdrop.conf &" ) | crontab - 
     
+    sudo service mysqld restart
     mysql -uroot -e "CREATE DATABASE seabattle;"
     mysql -uroot seabattle < /vagrant/src/seabattle.sql
     
@@ -86,3 +88,11 @@ provision:
     sudo service ngircd restart
     
     nohup /home/vagrant/eggdrop/eggdrop -m /vagrant/eggdrop.conf &
+    
+    wget http://download.virtualbox.org/virtualbox/5.0.16/VBoxGuestAdditions_5.0.16.iso
+    sudo mkdir -p /mnt/disk
+    sudo mount -o loop VBoxGuestAdditions_5.0.16.iso /mnt/disk
+    cd /mnt/disk
+    sudo ./VBoxLinuxAdditions.run
+    sudo umount /mnt/disk
+    rm -rf VBoxGuestAdditions_5.0.16.iso
