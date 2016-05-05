@@ -1,0 +1,88 @@
+# This file is to easy configure development enviroment
+# Last automatic file update/creation was on 2016-05-05 10:16:17 +0300
+# More info could be found at http://impresscms.org
+
+# ---------------------------------------------------------------------------------------
+# IP of this virtual machine.
+# ---------------------------------------------------------------------------------------
+ip: 192.168.201.65
+
+# ---------------------------------------------------------------------------------------
+# You can type this hostname in your browser and launch the website
+# ---------------------------------------------------------------------------------------
+hostname: 
+    -   seabattle.dev
+
+# ---------------------------------------------------------------------------------------
+# This is name how is box is listed in virtual machine 
+# ---------------------------------------------------------------------------------------
+name: seabattle-dev
+
+# ---------------------------------------------------------------------------------------
+# SSH Keys. If you use GitHub client, you can just simply change "id_rsa" to "github_rsa"
+# and everything should work without any extended configuration.
+#
+# If you remove lines these lines below, code in vagrantfile will try to autodetect
+# where your keys are located. If it fails, it raise an error.
+# ---------------------------------------------------------------------------------------
+#keys:
+#     private: ~/.ssh/id_rsa
+#     public: ~/.ssh/id_rsa.pub
+
+# ---------------------------------------------------------------------------------------
+# Defines ports forwarted list
+# ---------------------------------------------------------------------------------------
+ports:
+     - host: 6667
+       guest: 6667
+
+# ---------------------------------------------------------------------------------------
+# How many CPUs should this box use? Default value is 1.
+# ---------------------------------------------------------------------------------------
+cpus: 1
+
+# ---------------------------------------------------------------------------------------
+# How much RAM should this box have? This is a number in megabytes. Default value is 512.
+# ---------------------------------------------------------------------------------------
+memory: 512
+
+# ---------------------------------------------------------------------------------------
+# Do we need to check automatically for box updates? Default value is false
+# ---------------------------------------------------------------------------------------
+check_update: false
+
+# ---------------------------------------------------------------------------------------
+# What shell commands will be executed on provision?
+# ---------------------------------------------------------------------------------------
+provision: 
+    sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-6.noarch.rpm
+    sudo rpm -Uvh http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+    sudo yum -y update
+    sudo yum -y install tcl make tcl-devel gcc build-essential openssl libcurl4-openssl-dev zlib1g zlib1g-dev zlibc libgcrypt11 libgcrypt11-dev zlib-devel openssl-devel unzip tcl-mysqltcl mysql-server mysql-client mysql irssi ngircd
+    
+    wget ftp://ftp.eggheads.org/pub/eggdrop/source/1.6/eggdrop1.6.21.tar.gz
+    tar zxvf eggdrop1.6.21.tar.gz
+    cd eggdrop1.6.21
+    ./configure
+    make config 
+    make
+    make install DEST=/home/vagrant/eggdrop
+    ln -s /home/vagrant/eggdrop/modules-1.6.21/ /home/vagrant/eggdrop/modules
+    cd ..
+    rm -rf eggdrop1.6.21 eggdrop1.6.21.tar.gz
+    
+    (crontab -l; echo "@reboot nohup /home/vagrant/eggdrop/eggdrop -m /vagrant/eggdrop.conf &" ) | crontab - 
+    
+    mysql -uroot -e "CREATE DATABASE seabattle;"
+    mysql -uroot seabattle < /vagrant/src/seabattle.sql
+    
+    sudo firewall-cmd --permanent --zone=public --add-port=6667/tcp
+    sudo firewall-cmd --permanent --zone=public --add-port=6668/tcp
+    sudo firewall-cmd --permanent --zone=public --add-port=6669/tcp
+    sudo firewall-cmd --permanent --zone=public --add-port=7000/tcp
+    sudo firewall-cmd --reload
+    
+    sudo cp /vagrant/ngircd.conf /etc/ngircd.conf
+    sudo service ngircd restart
+    
+    nohup /home/vagrant/eggdrop/eggdrop -m /vagrant/eggdrop.conf &
