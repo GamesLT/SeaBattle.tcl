@@ -33,7 +33,7 @@ Visi norintys yra kviečiami prisidėti prie kūrimo. Galima taisyti klaidas ar 
 
 Kad būtų paprasčiau bandyti kurti, galima pasinaudoti šioje repozitorijoje esančia [Vagrant](http://vagrantup.com) konfiguracija, kad pasileisti jau paruoštą virtualią mašiną su veikiančiu bot'u. Tuomet tereikia nuklonavus šią repozitoriją tam pačiame kataloge įvykdyti `vagrant up` komandą. Tuomet bus įmanoma prisijungti prie naujo IRC serverio, kurio adresas - `seabattle.dev', bei apsilankyti  #seabattle kanale. Būtent ten ir sedės botas.
 
-===
+****
 
 ## Description in English
 
