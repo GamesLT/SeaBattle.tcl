@@ -32,6 +32,6 @@ end
 
 # Configure vagrant
 Vagrant.configure(2) do |config|
-  config.vm.box = 'relativkreativ/centos-7-minimal'
+  config.vm.box = 'gbarbieru/xenial'
   config.vm.provision :impressbox
 end
