@@ -11,7 +11,7 @@ Tai yra skriptas, kuris prideda galimybę žaisti klasikinį [Jūros mūšio](ht
  * Veikia tik tekstiniu režimu
  * Tinklo režimas, kuris gali būti žaidžiamas dviejų žaidėjų
  * Naudoja [MySQL](http://mysql.org) kaip duomenų bazę
- * Integruotos vartotojū registracijos
+ * Integruotos vartotojų registracijos
  * Nickserver palaikymas
  * Daugiakalbystės palaikymas
  
