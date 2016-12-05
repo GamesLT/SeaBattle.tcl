@@ -173,6 +173,11 @@ provision: |
     service mysql restart
 
     mysql -e "CREATE DATABASE seabattle;"
+    mysql -e "CREATE USER 'seabattle'@'%' IDENTIFIED BY 'seabattle';"
+    mysql -e "GRANT ALL PRIVILEGES ON * . * TO 'seabattle'@'%';"
+    mysql -e "CREATE USER 'seabattle'@'localhost' IDENTIFIED BY 'seabattle';"
+    mysql -e "GRANT ALL PRIVILEGES ON * . * TO 'seabattle'@'localhost';"
+    mysql -e "FLUSH PRIVILEGES;"
     mysql seabattle < /vagrant/src/seabattle.sql
 
     mv /tmp/ngircd.conf /etc/ngircd.conf
@@ -351,9 +356,9 @@ provision: |
   </html>
   EOF
 
-  (crontab -l; echo "@reboot screen -dm -S eggdrop eggdrop -m /etc/eggdrop.conf" ) | crontab -
+  (crontab -l; echo "@reboot eggdrop -m /etc/eggdrop.conf" ) | crontab -
   (crontab -l; echo "@reboot /var/www/html/KiwiIRC/kiwi start" ) | crontab -
-  screen -dm -S eggdrop eggdrop -m /etc/eggdrop.conf
+  eggdrop -m /etc/eggdrop.conf
   /var/www/html/KiwiIRC/kiwi start
 
   sudo chown -R www-data /var/www/html/

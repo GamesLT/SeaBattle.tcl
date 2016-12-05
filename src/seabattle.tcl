@@ -23,8 +23,8 @@ set skystats_max 10
 set skystats_i 0
 
 # Database connection info
-set sqluser "root"
-set sqlpass ""
+set sqluser "seabattle"
+set sqlpass "seabattle"
 set sqlhost "localhost"
 set sqldb "seabattle"
 
