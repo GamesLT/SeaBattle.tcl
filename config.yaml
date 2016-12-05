@@ -162,13 +162,15 @@ provision: |
   source /usr/share/eggdrop/scripts/action.fix.tcl
   source /usr/share/eggdrop/scripts/compat.tcl
   source /usr/share/eggdrop/scripts/userinfo.tcl
-  source /vagrant/src/seabattle.tcl
+
+  # Here we including our game!!!!
+  source /vagrant/src/seabattle_main.tcl
 
   loadhelp userinfo.help
   EOF
 
   sudo bash <<'EOF'
-    DEBIAN_FRONTEND=noninteractive apt-get -y install telnet npm tcl mysqltcl mysql-server unzip mc irssi ngircd eggdrop apache2 screen composer git php-cli php-curl php-json php-mbstring php-mcrypt php-gettext php-zip php libapache2-mod-php
+    DEBIAN_FRONTEND=noninteractive apt-get -y install telnet npm tcl mysqltcl mysql-server unzip mc irssi ngircd eggdrop apache2 screen composer git php-cli php-curl php-mysql php-json php-mbstring php-mcrypt php-gettext php-zip php libapache2-mod-php
 
     service mysql restart
 
@@ -311,7 +313,7 @@ provision: |
       text-decoration: none;
       display: block;
   }
-  div a {
+  li div a {
     display: inline;
     width: 100%;
   }
@@ -354,6 +356,23 @@ provision: |
     </div>
   </body>
   </html>
+  EOF
+
+  cat > /var/www/html/phpmyadmin/config.inc.php <<'EOF'
+  <?php
+    $cfg['blowfish_secret'] = md5(__FILE__);
+
+    $i = 0;
+    $i++;
+    $cfg['Servers'][$i]['auth_type'] = 'config';
+    $cfg['Servers'][$i]['host'] = 'localhost';
+    $cfg['Servers'][$i]['user'] = 'seabattle';
+    $cfg['Servers'][$i]['password'] = 'seabattle';
+    $cfg['Servers'][$i]['connect_type'] = 'tcp';
+    $cfg['Servers'][$i]['compress'] = false;
+    $cfg['Servers'][$i]['AllowNoPassword'] = true;
+    $cfg['UploadDir'] = '';
+    $cfg['SaveDir'] = '';
   EOF
 
   (crontab -l; echo "@reboot eggdrop -m /etc/eggdrop.conf" ) | crontab -

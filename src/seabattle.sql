@@ -1,4 +1,3 @@
-# noinspection SqlNoDataSourceInspectionForFile
 CREATE TABLE `Users` (
   id         INT UNSIGNED           AUTO_INCREMENT PRIMARY KEY,
   Nick       VARCHAR(30)            NOT NULL,
@@ -42,4 +41,8 @@ CREATE TABLE Seabattle (
   collumn CHAR(1)     NOT NULL
 );
 
-
+ALTER TABLE `Users` ADD INDEX(`Admin`);
+ALTER TABLE `Users` ADD UNIQUE(`Nick`);
+ALTER TABLE `Help` ADD UNIQUE(`Item`);
+ALTER TABLE `settings` ADD UNIQUE( `Setting`);
+ALTER TABLE `Seabattle` ADD INDEX( `Nick`, `row`, `collumn`);

@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Copyright (C) 2003-2012 MekDrop <github@mekdrop.name>
+# Copyright (C) 2003-2016 Games.lt
 # 
 #  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
 #  to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
@@ -13,54 +13,13 @@
 #  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Flags needed to use the commands
-set qstat_flag "."
-
-# Sets BotPass
-set botpass "botsky"
-
-set skystats_max 10
-set skystats_i 0
-
-# Database connection info
-set sqluser "seabattle"
-set sqlpass "seabattle"
-set sqlhost "localhost"
-set sqldb "seabattle"
-
-set msg_dontunderstand { 
-    "?"
-    "Aš tavęs nesuprantu... :("
-    "Ką tai galėtų reikšti?"
-    "What?"
-    "Baik mane floodinti!"
-    "Nemanau, kad supranti pats ką rašai..."
-    }
-
-array set commands_alias {
-     "rodyti zemelapi" "!map"
-     "rodyti zemelapius" "!map3"
-     "rodyti priesininko zemelapi" "!map2"
-     "zemelapis" "!map"
-     "mano zemelapis" "!map"
-     "musu zemelapiai" "!map3"
-     "zemelapiai" "!map3"
-     "priesininko zemelapis" "!map2"
-     "pabaigti" "!end"
-     "uzbaigti" "!end"
-     "pabaiga" "!end"
-     "baigti" "!end"
-     "baik" "!end"
-     "uzbaik" "!end"
-     }
-
-# End configuration settings
-
 ################################################################
 # This is where the evil TCL code starts, read at your peril!  #
 ################################################################
 
 set spath [file dirname [info script]]
+
+source [file join $spath "seabattle_config.tcl"]
 
 set mpath "$spath/tcllibs/"
 
@@ -890,7 +849,7 @@ package require mysqltcl
 			   return 0;
 			}
 			set count [db_count "Seabattle" "nick = '$nick' and value = '1'"]
-				set val [mysql_getcell "Seabattle" "value" "nick ='$nick' and row = '$row' and collumn = '$coll'"]
+			set val [mysql_getcell "Seabattle" "value" "nick ='$nick' and row = '$row' and collumn = '$coll'"]
 			if {$val!="0"} {
 			say "game" $nick $nick "Jau kažkoks laivas yra pastatytas tame langelyje ($coll$row)"
 			if {$arg!="l"} {
