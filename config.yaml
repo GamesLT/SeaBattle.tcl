@@ -306,6 +306,10 @@ provision: |
       text-decoration: none;
       display: block;
   }
+  div a {
+    display: inline;
+    width: 100%;
+  }
   li {
     display: inline-block;
   }
@@ -336,9 +340,7 @@ provision: |
         <?php else: ?>
           <a href="irc://<?=getHostByName(getHostName()); ?>#seabattle"><?=getHostByName(getHostName()); ?></a>
         <?php endif; ?>
-        <div>
-        (<?php if (!empty($config['ip'])): ?><a href="http://<?=$config['ip']; ?>:7778">KiwiIRC</a><?php else: ?><a href="http://<?=getHostByName(getHostName()); ?>:7778">KiwiIRC</a><?php endif; ?>)
-        </div>
+        <div>(<?php if (!empty($config['ip'])): ?><a href="http://<?=$config['ip']; ?>:7778">KiwiIRC</a><?php else: ?><a href="http://<?=getHostByName(getHostName()); ?>:7778">KiwiIRC</a><?php endif; ?>)</div>
       </li>
       <li>
         <h1 class="fa fa-file-text-o" aria-hidden="true"></h1>
