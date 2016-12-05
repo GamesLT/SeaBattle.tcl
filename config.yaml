@@ -168,7 +168,7 @@ provision: |
   EOF
 
   sudo bash <<'EOF'
-    DEBIAN_FRONTEND=noninteractive apt-get -y install npm tcl mysqltcl mysql-server unzip mc irssi ngircd eggdrop apache2 screen composer git php-cli php-curl php-json php-mbstring php-mcrypt php-gettext php-zip php libapache2-mod-php
+    DEBIAN_FRONTEND=noninteractive apt-get -y install telnet npm tcl mysqltcl mysql-server unzip mc irssi ngircd eggdrop apache2 screen composer git php-cli php-curl php-json php-mbstring php-mcrypt php-gettext php-zip php libapache2-mod-php
 
     service mysql restart
 
