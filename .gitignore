@@ -169,3 +169,6 @@ pip-log.txt
 .vagrant
 
 .idea
+
+pid.seabattle
+*.komodoproject
