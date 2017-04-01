@@ -1,4 +1,4 @@
-# Flags needed to use the commands
+    # Flags needed to use the commands
 set qstat_flag "."
 
 # Sets BotPass
@@ -15,3 +15,8 @@ set sqldb "seabattle"
 
 # Language
 set language "lt"
+
+# Ships playfield data
+set grid_width [list g a m e s]
+set grid_height [list 1 2 3 4 5]
+set ship_count 5
