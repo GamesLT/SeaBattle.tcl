@@ -150,16 +150,41 @@ proc WaitEvent { nick event } {
     set rez [mysqlexec $db_handle $sql]
 }
 
-proc multiline_translated_say { ni lang_string } {
+proc lang_str { kind {params {}} {return_as_list false} } {
     global translation
-    foreach line $translation($lang_string) { 
+    set ret $translation($kind)
+    if { [llength $ret] > 0 } {
+        set ret [join $ret "\n"]
+    }
+    if { $ret == "" } {
+        return [emptyline]
+    }
+    set ret [make_codes_live $ret]
+    if {[llength $params] > 0} {
+        set ret [format $ret $params]
+    }
+    if { $return_as_list == true } {
+        return [split $ret "\n"]
+    } else {
+        return $ret
+    }
+}
+
+proc make_codes_live { text } {
+    set ret [regsub -all "<b>(.+)<\/b>" $text [boldtext "\\1"]]
+    set ret [regsub -all "<i>(.+)<\/i>" $ret [italictext "\\1"]]
+    set ret [regsub -all "<u>(.+)<\/u>" $ret [underlinetext "\\1"]]
+    return [regsub -all "<color[\ ]+([^>]+)>(.+)<\/color>" $ret [colortext "\\2" "\\1"]]
+}
+
+proc multiline_translated_say { ni lang_string {params {}}} {
+    foreach line [lang_str $lang_string $params true] {
         putquick "PRIVMSG $ni :$line"
     }
 }
 
-proc multiline_translated_say2 { type nick1 nick2 lang_string } {
-    global translation
-    foreach line $translation($lang_string) {
+proc multiline_translated_say2 { type nick1 nick2 lang_string {params {}}} {
+    foreach line [lang_str $lang_string $params true] {
         say $type $nick1 $nick2 $line
     }
 }
@@ -175,20 +200,11 @@ proc say_unknown { ni } {
     }
 }
 
-proc lang_str { kind {params ""} } {
-    global translation
-    set ret $translation($kind)
-    if {$params != ""} {
-        set ret [format $ret $params]
-    }
-    return ret
-}
-
 proc pub:admin_commands { nick host handle chan text } {
     global db_handle
     if {[is_identified $nick $host]==0} {
         say_unknown $nick
-        return 0;
+        return 0
     }
     if {[isadmin $nick]<1} {
         say "error" $nick $chan [lang_str "you_are_not_my_admin"];
@@ -339,6 +355,87 @@ proc emptyline { } {
 
 proc boldtext { text } {
     return "\$text\"
+}
+
+proc italictext { text } {
+    return "\$text\"
+}
+
+proc underlinetext { text } {
+    return "\$text\"
+}
+
+proc colortext { text color } {
+    switch [string tolower $color] {
+        1 -
+        "black" {
+            set c 1
+        }
+        2 -
+        "navyblue" {
+            set c 2
+        }
+        3 -
+        "green" {
+            set c 3
+        }
+        4 -
+        "red" {
+            set c 4
+        }
+        5 -
+        "brown" {
+            set c 5
+        }
+        6 -
+        "purple" {
+            set c 6
+        }
+        7 -
+        "olive" {
+            set c 7
+        }
+        8 -
+        "yellow" {
+            set c 8
+        }
+        9 -
+        "limegreen" {
+            set c 9
+        }
+        10 -
+        "teal" {
+            set c 10
+        }
+        11 -
+        "aqualight" {
+            set c 11
+        }
+        12 -
+        "royalblue" {
+            set c 12
+        }
+        13 -
+        "hotpink" {
+            set c 13
+        }
+        14 -
+        "darkgray" {
+            set c 14
+        }
+        15 -
+        "lightgray" {
+            set c 15
+        }
+        16 -
+        "white" {
+            set c 16
+        }
+        default {
+            set c 0
+        }
+    }
+    return "\$c$text\0"
 }
 
 proc getini { setting } {
@@ -541,9 +638,7 @@ proc regerror {} {
         return;
     }
     set nick $tdata(nick)
-    say "error" $nick $nick "Tu nesi užsiregistravęs(-iusi) savo nick'o IRC serveryje"
-    say "error" $nick $nick "Todėl aš tikrai nenoriu tavęs užregistruoti savo duomenų bazėje tol, kol tu neužsiregistruosi IRC serveryje."
-    say "error" $nick $nick "Tai tu gali padaryti parašęs(-iusi) komandą: /MSG NICKSERV REGISTER slaptazodis tavo@email'as.lt"
+    multiline_translated_say2 "error" $nick $nick "nickserv_registration_is_must"
     unbind NOTC -|- "$nick*" ndata
 }
 
@@ -562,7 +657,7 @@ proc ndata { nick host handle text dest} {
         set id [mysql_getcell "Users" "id" "nick = '$nick'"]
         putlog "$id>>"
         if {[string trim $id]!=""} {
-            say "error" $nick $chan "Toks vartotojas jau egzistuoja!"
+            say "error" $nick $chan [lang_str "such_user_exists"]
             return 0;
         }
         set sql "INSERT INTO `Users` (`ID`, `Nick`, `Admin`, `Host`, `Password`, `E-Mail`, `LastLogged`)"
@@ -570,19 +665,7 @@ proc ndata { nick host handle text dest} {
         append sql "'', '$nick', 'false', '$host', '$pass', '$email', ''"
         append sql ");"
         set rez [mysqlexec $db_handle $sql]
-        set txt "Jūs ką tik užsiregistravote!\n"
-        append txt [emptyline]
-        append txt "\n"
-        append txt "Jūsų slaptažodis: "
-        append txt [boldtext $pass]
-        append txt "\n"
-        append txt "Jūsų elektroninio pašto adresas: "
-        append txt [boldtext $email]
-        append txt "\n"
-        append txt [emptyline]
-        append txt "\n"
-        append txt " Prisiminkite savo slaptažodį arba bent jau elektrinio pašto adresą, \nkad galėtūmėte užmiršus paklausti slaptažodžio."
-        say "error" $nick $chan $txt
+        multiline_translated_say2 "error" $nick $chan "registration_msg" [list $pass $email]
     }
 }
 
@@ -609,9 +692,8 @@ proc autoend {}    {
     set player2 [lindex $dothiscommand 1]
     set player $player2
     if {[onchan $nick]==0} {
-        say "error" $player2 $player2 "Kadangi žaidėjas $nick išėjo iš mano sėdimų kanalų, nutraukiu žaidimą"
-        say "error" $nick $nick "Kadangi jūs išėjote iš mano sėdimų kanalų, žaidimas yra nutraukiamas"
-        say "error" $nick $nick "Žaidėjas $player2 labai liūdi dėl to, tačiau tikisi, kad kitą kartą pabaigsite žaidimą :)"
+        say "error" $player2 $player2 [lang_str "other_player_quited" [list $nick]]
+        multiline_translated_say2 "error" $nick $nick "registration_msg" [list $player2]
         DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd' LIMIT 1;"
         DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
         DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
@@ -620,9 +702,8 @@ proc autoend {}    {
         return;
     }
     if {[onchan $player2]==0} {
-        say "error" $nick $nick "Kadangi žaidėjas $player2 išėjo iš mano sėdimų kanalų, nutraukiu žaidimą"
-        say "error" $player2 $player2 "Kadangi jūs išėjote iš mano sėdimų kanalų, žaidimas yra nutraukiamas"
-        say "error" $player2 $player2 "Žaidėjas $nick labai liūdi dėl to, tačiau tikisi, kad kitą kartą pabaigsite žaidimą :)"
+        say "error" $nick $nick [lang_str "other_player_left_channel" [list $player2]]
+        multiline_translated_say2 "error" $player2 $player2 "you_left_channel" [list $nick]
         DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd' LIMIT 1;"
         DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
         DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
@@ -630,16 +711,16 @@ proc autoend {}    {
         WaitEvent $player2 ""
         return;
     }
-    set lastaction1    [mysql_getcell "Users" "LastAction" "Nick = '$nick'"] 
-    set lastaction2    [mysql_getcell "Users" "LastAction" "Nick = '$player2'"] 
+    set lastaction1 [mysql_getcell "Users" "LastAction" "Nick = '$nick'"] 
+    set lastaction2 [mysql_getcell "Users" "LastAction" "Nick = '$player2'"] 
     set ct(hrs) [clock format [clock seconds] -format %H]
     set ct(min) [clock format [clock seconds] -format %M]
     set ct(sec) [clock format [clock seconds] -format %S]
     set laikas [expr $ct(hrs)*3600+$ct(min)*60+$ct(sec)]
     DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd' LIMIT 1;"
     if {$laikas>[expr $lastaction1+960]} {
-        say "error" $nick $nick "Žaidimas buvo automatiškai nutrauktas, nes jūs nedarėte jokių veiksmų pastarasias 5 minutes"
-        say "error" $player2 $player2 "Žaidimas buvo automatiškai nutrauktas, nes jūsų priešininkas neatliko jokių veiksmų per pastarasias 5 minutes."
+        say "error" $nick $nick [lang_str "game_canceled_because_you_idled"]
+        say "error" $player2 $player2 [lang_str "game_canceled_because_other_player_not_moved"]
         DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
         DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
         WaitEvent $nick ""
@@ -647,10 +728,10 @@ proc autoend {}    {
         return;
     }
     if {$laikas>[expr $lastaction2+960]} {
-        say "error" $player2 $player2 "Žaidimas buvo automatiškai nutrauktas, nes jūs nedarėte jokių veiksmų pastarasias 5 minutes"
-        say "error" $nick $nick "Žaidimas buvo automatiškai nutrauktas, nes jūsų priešininkas neatliko jokių veiksmų per pastarasias 5 minutes."
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
+        say "error" $player2 $player2 [lang_str "game_canceled_because_you_idled"]
+        say "error" $nick $nick [lang_str "game_canceled_because_other_player_not_moved"]
+        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1;"
+        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1;"
         WaitEvent $nick ""
         WaitEvent $player2 ""
         return;
@@ -668,30 +749,23 @@ proc pub:play2 { nick host handle text } {
 proc pub:stats { nick host handle chan text } {
     if {[string trim $text]==""} {
         if {[db_count "Users" "Nick = '$nick'"]<1} {
-            say "error" $nick $chan "Tu nesi užsiregistravęs duomenų bazėje"
-            say "error" $nick $chan "Todėl aš negaliu rodyti tavo statistikos... :("
+            multiline_translated_say2 "error" $nick $chan "cant_show_stats"
             return
         } 
-        say "error" $nick $chan "Tavo statistika"
+        say "error" $nick $chan [lang_str "your_stats"]
         set user $nick
     } else {
         set user [lindex $text 0]
         if {[db_count "Users" "Nick = '$user'"]<1} {
-            say "error" $nick $chan "$user vartotojas nėra užsiregistravęs mano duomenų bazėje"
-            say "error" $nick $chan "Todėl aš negaliu rodyti jo    statistikos... :("
+            multiline_translated_say2 "error" $nick $chan "cant_show_stats_for" [list $user]
             return
         }
-        say "error" $nick $chan "$user statistika"
+        say "error" $nick $chan [lang_str "user_stats" [list $user]]
     }
     set won [mysql_getcell "Users" "StatWon" "Nick = '$user'"] 
     set lost [mysql_getcell "Users" "StatLost" "Nick = '$user'"] 
-    set na [mysql_getcell "Users" "StatNA" "Nick = '$user'"] 
-    say "error" $nick $chan "----------------------------------"
-    say "error" $nick $chan "Laimėti žaidimai: $won"
-    say "error" $nick $chan "Pralaimėti žaidimai: $lost"
-    say "error" $nick $chan "Nepabaigti žaisti žaidimai: $na"
-    say "error" $nick $chan "Iš viso žaista: [expr $na+$won+$lost]"
-    say "error" $nick $chan "----------------------------------"
+    set na [mysql_getcell "Users" "StatNA" "Nick = '$user'"]
+    multiline_translated_say2 "error" $nick $chan "stats_data" [list $won $lost $na [expr $na+$won+$lost]]
 }
 
 proc pub:play { nick host handle chan text } {
@@ -1151,11 +1225,10 @@ proc PlayBegin { game nick player } {
         }
     }
     PlayGameInfo_Start $game $nick
-    say "game" $nick $nick "Nurodykite kordinates (pvz. \a 1\):"
+    say "game" $nick $nick [lang_str "enter_coordinate"]
     WaitEvent $nick "place $player $game"
     PlayGameInfo_Start $game $player
-    say "game" $player $player "Nurodykite kordinates (pvz. \a 1\):"
-    WaitEvent $player "place $nick $game"
+    say "game" $player $player [lang_str "enter_coordinate"]
 }
 
 set my_games [string map {"Game_" ""} [info commands "Game_*"]]

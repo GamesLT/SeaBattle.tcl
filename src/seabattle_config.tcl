@@ -1,9 +1,10 @@
-    # Flags needed to use the commands
+# Flags needed to use the commands
 set qstat_flag "."
 
 # Sets BotPass
 set botpass "botsky"
 
+# Skystats
 set skystats_max 10
 set skystats_i 0
 
