@@ -180,4 +180,32 @@ array set translation {
          "Nutrauktas žaidimas"
     }
     "bad_coordinates" "Klaida: blogai nurodytos kordinatės (%s%s)"
+    "there_is_alread_a_ship" "Jau kažkoks laivas yra pastatytas tame langelyje (%s%s)"
+    "shoot_to" "%s šovė į %s%s"
+    "ship_sink" "Pataikė į ten stovintį laivelį :("
+    "shoot_good_results" "Jūs pataikėtėte ir nuskandinote vieną laivelį!"
+    "that_was_last_ship" "Deja, ten buvo paskutinis jūsų laivelis :("
+    "i_will_show_your_opnent_map" "Kad jums būtų ramiau gyventi, parodysiu $nick žemėlapį:"
+    "has_won" "%s laimėjo mūšį"
+    "congratulations" "Sveikiname su pergale!"
+    "ships_count" "%d laiveliai liko"
+    "there_was_no_ship" "Bet ten nebuvo jokio laivelio... :)"
+    "shoot_bad_results" "Jūs prašovėte... :("
+    "already_shooted_here" "Jau kartą esatę čia pataikęs(-iusi)..."
+    "oponent_likes_that_you_decided_to_skip" "%s dėkoja už perleistą ėjimą..."
+    "bad_hands_doesnt_listens_to_head" {
+        "Kreivos rankos neklauso %s galvos...:)"
+        "Dabar galite nurodyti kordinates, kur šauti:"
+    }
+    "wait_for_player_to_places_ships" "Palaukite kol %s susistatys laivus..."
+    "you_just_places_a_ship" "Ką tik jūs pastatėte %d-ąjį savo laivelį (%s%s)"
+    "enter_coordinates_for_ship" "Nurodykite %d-ojo laivo kordinates:"
+    "seabattle_starts_enter_coordinates" {
+        "Dabar galite pradėti šaudyti laivus!"
+        "Nurodykite kordinates, kur reikės šauti (pvz. <b>a 2</b>):"
+    }
+    "seabattle_soon_you_will_need_to_shhot_something" {
+        "Greitai galėsite pradėti šaudyti laivelius!"
+        "Tačiau dabar turite palaukti kol šaus %s"
+    }
 }

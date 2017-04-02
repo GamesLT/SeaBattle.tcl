@@ -200,6 +200,13 @@ proc say_unknown { ni } {
     }
 }
 
+proc get_unixtime {} {
+    set ct(hrs) [clock format [clock seconds] -format %H]
+    set ct(min) [clock format [clock seconds] -format %M]
+    set ct(sec) [clock format [clock seconds] -format %S]
+    return [expr $ct(hrs)*3600+$ct(min)*60+$ct(sec)]
+}
+
 proc pub:admin_commands { nick host handle chan text } {
     global db_handle
     if {[is_identified $nick $host]==0} {
@@ -694,9 +701,8 @@ proc autoend {}    {
     if {[onchan $nick]==0} {
         say "error" $player2 $player2 [lang_str "other_player_quited" [list $nick]]
         multiline_translated_say2 "error" $nick $nick "registration_msg" [list $player2]
-        DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd' LIMIT 1;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
+        DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd';"
+        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player');"
         WaitEvent $nick ""
         WaitEvent $player2 ""
         return;
@@ -704,25 +710,20 @@ proc autoend {}    {
     if {[onchan $player2]==0} {
         say "error" $nick $nick [lang_str "other_player_left_channel" [list $player2]]
         multiline_translated_say2 "error" $player2 $player2 "you_left_channel" [list $nick]
-        DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd' LIMIT 1;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
+        DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd';"
+        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player');"
         WaitEvent $nick ""
         WaitEvent $player2 ""
         return;
     }
     set lastaction1 [mysql_getcell "Users" "LastAction" "Nick = '$nick'"] 
     set lastaction2 [mysql_getcell "Users" "LastAction" "Nick = '$player2'"] 
-    set ct(hrs) [clock format [clock seconds] -format %H]
-    set ct(min) [clock format [clock seconds] -format %M]
-    set ct(sec) [clock format [clock seconds] -format %S]
-    set laikas [expr $ct(hrs)*3600+$ct(min)*60+$ct(sec)]
-    DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd' LIMIT 1;"
+    set laikas [get_unixtime]
+    DoSQL "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd'"
     if {$laikas>[expr $lastaction1+960]} {
         say "error" $nick $nick [lang_str "game_canceled_because_you_idled"]
         say "error" $player2 $player2 [lang_str "game_canceled_because_other_player_not_moved"]
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
+        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player')"
         WaitEvent $nick ""
         WaitEvent $player2 ""
         return;
@@ -730,8 +731,7 @@ proc autoend {}    {
     if {$laikas>[expr $lastaction2+960]} {
         say "error" $player2 $player2 [lang_str "game_canceled_because_you_idled"]
         say "error" $nick $nick [lang_str "game_canceled_because_other_player_not_moved"]
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1;"
-        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1;"
+        DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player')"
         WaitEvent $nick ""
         WaitEvent $player2 ""
         return;
@@ -857,13 +857,9 @@ proc Game_SeaBattle { command game nick player text } {
     global grid_width grid_height ship_count commands_alias
     set arg [lindex $command 1]
     set command [lindex $command 0]
-    set ct(hrs) [clock format [clock seconds] -format %H]
-    set ct(min) [clock format [clock seconds] -format %M]
-    set ct(sec) [clock format [clock seconds] -format %S]
-    set laikas [expr $ct(hrs)*3600+$ct(min)*60+$ct(sec)]
+    set laikas [get_unixtime]
     DoSQL "UPDATE `Users` SET LastAction = '$laikas' WHERE `Nick` = '$nick' LIMIT 1;"
-    DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND Arguments LIKE '% $nick';" 
-    DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND Arguments LIKE '$nick %';" 
+    DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND (Arguments LIKE '% $nick' OR Arguments LIKE '$nick %');" 
     DoSQL "INSERT INTO `TodoList` (`ID`, `Command`, `Arguments`) VALUES ('', 'CheckIfAutoEnd', '$nick $player');" 
     set textp [string tolower $text]
     if {[info exists commands_alias($textp)]==1} {
@@ -907,10 +903,8 @@ proc Game_SeaBattle { command game nick player text } {
             WaitEvent $nick ""
             WaitEvent $player ""
             DoSQL "DELETE FROM Seabattle WHERE (Nick = '$nick') OR (Nick = '$player');" 
-            DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND Arguments LIKE '% $nick';" 
-            DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND Arguments LIKE '$nick %';" 
-            DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
-            DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
+            DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND (Arguments LIKE '% $nick' OR Arguments LIKE '$nick %');" 
+            DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player');"
             multiline_translated_say2 "game" $nick $nick "end_iniciated_by_you" [list $player]
             multiline_translated_say2 "game" $player $player "end_iniciated_by_other_player" [list $nick]
             return
@@ -971,18 +965,18 @@ proc Game_SeaBattle { command game nick player text } {
             set count [db_count "Seabattle" "nick = '$nick' and value = '1'"]
             set val [mysql_getcell "Seabattle" "value" "nick ='$nick' and row = '$row' and collumn = '$coll'"]
             if {$val!="0"} {
-                say "game" $nick $nick "Jau kažkoks laivas yra pastatytas tame langelyje ($coll$row)"
+                say "game" $nick $nick [lang_str "there_is_alread_a_ship" [list $coll $row]]
                 if {$arg!="l"} {
                     say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 return 0;
             }     
             set id [mysql_getcell "Seabattle" "id" "nick ='$nick' and row = '$row' and collumn = '$coll'"]
-            DoSQL "UPDATE Seabattle SET `Value` = '1' WHERE `ID` = '$id' LIMIT 1 ;"
-            say "game" $nick $nick "Ką tik jūs pastatėte [expr $count+1]-ąjį savo laivelį ($coll$row)"
+            DoSQL "UPDATE Seabattle SET `Value` = '1' WHERE `ID` = '$id' LIMIT 1;"
+            say "game" $nick $nick [lang_str "you_just_places_a_ship" [list [expr $count+1] $coll $row]]
             if {$count<$ship_count} {
                 if {$arg!="l"} {
-                    say "game" $nick $nick "Nurodykite [expr $count+2]-ojo laivo kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates_for_ship" [list [expr $count+2]]]
                 }
             } else {
                 set txt [mysql_getcell "Users" "command" "nick = '$player'"]
@@ -1002,17 +996,13 @@ proc Game_SeaBattle { command game nick player text } {
                 switch $cmd {
                     "waituntilplace" {
                         WaitEvent $player "shoot $nick $game"
-                        set msg "Dabar galite pradėti šaudyti laivus!\n"
-                        append msg "Nurodykite kordinates, kur reikės šauti (pvz. [boldtext {a 2}]):"
-                        say "game" $player $player $msg
+                        multiline_translated_say2 "game" $player $player "seabattle_starts_enter_coordinates"
                         WaitEvent $nick "waitshoot $player $game"
-                        set msg "Greitai galėsite pradėti šaudyti laivelius!\n"
-                        append msg "Tačiau dabar turite palaukti kol šaus $player"
-                        say "game" $nick $nick $msg
+                        multiline_translated_say2 "game" $nick $nick "seabattle_soon_you_will_need_to_shhot_something" [list $player]
                     }
                     default {
                         WaitEvent $nick "waituntilplace $nick $game"
-                        say "game" $nick $nick "Palaukite kol $player susistatys laivus..."
+                        say "game" $nick $nick [lang_str "wait_for_player_to_places_ships" [list $nick]]
                     }
                 }
             }
@@ -1046,10 +1036,10 @@ proc Game_SeaBattle { command game nick player text } {
             set val [mysql_getcell "Seabattle" "value" "nick ='$player' and row = '$row' and collumn = '$coll'"]        
             switch $val {
                 "1" {
-                    say "game" $player $player "$nick šovė į $coll$row"
-                    say "game" $player $player "Pataikė į ten stovintį laivelį :("
-                    DoSQL "UPDATE `Seabattle` SET `Value` = '2' WHERE nick ='$player' and row = '$row' and collumn = '$coll' LIMIT 1;"
-                    say "game" $nick $nick "Jūs pataikėtėte ir nuskandinote vieną laivelį!"
+                    say "game" $player $player [lang_str "shoot_to" [list $nick $coll $row]]
+                    say "game" $player $player [lang_str "ship_sink"]
+                    DoSQL "UPDATE `Seabattle` SET `Value` = '2' WHERE nick ='$player' and row = '$row' and collumn = '$coll';"
+                    say "game" $nick $nick [lang_str "shoot_good_results"]
                     set count [db_count "Seabattle" "nick = '$player' and value = '1'"]
                     if {$count<1} {
                         WaitEvent $nick ""
@@ -1066,38 +1056,38 @@ proc Game_SeaBattle { command game nick player text } {
                                 }
                             }
                         }
-                        say "game" $player $player "Deja, ten buvo paskutinis jūsų laivelis :("
-                        say "game" $player $player "Kad jums būtų ramiau gyventi, parodysiu $nick žemėlapį:"
+                        say "game" $player $player [lang_str "that_was_last_ship"]
+                        say "game" $player $player [lang_str "i_will_show_your_opnent_map"]
                         DrawGrid $data $player
-                        say "game" $player $player "$nick laimėjo mūšį"
+                        say "game" $player $player [lang_str "has_won" [list $nick]]
                         DoSQL "UPDATE `Users` SET StatWon = StatWon + 1 WHERE `Nick` = '$nick' LIMIT 1;"
                         DoSQL "UPDATE `Users` SET StatLost = StatLost + 1 WHERE `Nick` = '$player' LIMIT 1;"
-                        say "game" $nick $nick "Sveikiname su pergale!"
+                        say "game" $nick $nick [lang_str "congratulations"]
                         return 0;
                     } else {
                         set count [db_count "Seabattle" "nick = '$player' and value = '1'"]
-                        say "game" $player $player "$count laiveliai liko"
-                        say "game" $nick $nick "$count laiveliai liko"
+                        say "game" $player $player [lang_str "ships_count" [list $count]]
+                        say "game" $nick $nick [lang_str "ships_count" [list $count]]
                     }
                     say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 "0" {
-                    say "game" $player $player "$nick šovė į $coll$row"
-                    say "game" $player $player "Bet ten nebuvo jokio laivelio... :)"
-                    say "game" $nick $nick "Jūs prašovėte... :("
-                    DoSQL "UPDATE `Seabattle` SET `Value` = '3' WHERE nick ='$player' and row = '$row' and collumn = '$coll' LIMIT 1 ;"
+                    say "game" $player $player [lang_str "shoot_to" [list $nick $coll $row]]
+                    say "game" $player $player [lang_str "there_was_no_ship"]
+                    say "game" $nick $nick [lang_str "shoot_bad_results"]
+                    DoSQL "UPDATE `Seabattle` SET `Value` = '3' WHERE nick ='$player' and row = '$row' and collumn = '$coll';"
                     WaitEvent $nick "waitshoot $player $game"
                     WaitEvent $player "shoot $nick $game"
                     say "game" $player $player [lang_str "enter_coordinates"]
                 }
                 "3" {
-                    say "game" $player $player "Kreivos rankos neklauso $nick galvos...:)\nDabar galite nurodyti kordinates, kur šauti:"
-                    say "game" $nick $nick "$player dėkoja už perleistą ėjimą..."
+                    multiline_translated_say2 "game" $player $player "bad_hands_doesnt_listens_to_head" [list $nick]
+                    say "game" $nick $nick [lang_str "oponent_likes_that_you_decided_to_skip" [list $player]]
                     WaitEvent $nick "waitshoot $player $game"
                     WaitEvent $player "shoot $nick $game"
                 }
                 "2" {
-                    say "game" $nick $nick "Jau kartą esatę čia pataikęs(-iusi)..."
+                    say "game" $nick $nick [lang_str "already_shooted_here"]
                     say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
             }
@@ -1196,8 +1186,7 @@ proc DrawGrid3 { nick player } {
 
 proc PlayBegin { game nick player } {
     global grid_width grid_height
-    DoSQL "DELETE FROM `Seabattle` WHERE `Nick` = '$nick';"
-    DoSQL "DELETE FROM `Seabattle` WHERE `Nick` = '$player';"
+    DoSQL "DELETE FROM `Seabattle` WHERE `Nick` IN ('$nick', '$player');"
     foreach y $grid_height {
         foreach x $grid_width {
             DoSQL "INSERT INTO `Seabattle` (`ID` ,`Nick` ,`Row` ,`Collumn` ,`Value` )  VALUES ('', '$nick', '$y', '$x', '0');" 
