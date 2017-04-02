@@ -533,13 +533,13 @@ proc pub:private_chat { nick host handle text } {
         "agree" {
             set player [lindex $txt 1]
             set game [lindex $txt 2]
-            if {[string equal -nocase $text "ne"]==1} {
+            if {[string equal -nocase $text [lang_str "no"]]==1} {
                 say "game" $player $player [lang_str "rejected_invitation" [list $nick $game]]
                 WaitEvent $nick ""
                 WaitEvent $player ""
                 return 1;
             }
-            if {[string equal -nocase $text "taip"]==1}    {
+            if {[string equal -nocase $text [lang_str "yes"]]==1}    {
                 say "game" $player $player [lang_str "accepted_invitation" [list $nick]]
                 say "game" $player $player [lang_str "game_will_start_soon"]
                 say "game" $nick $nick [lang_str "game_will_start_soon"]
@@ -792,68 +792,56 @@ proc pub:play { nick host handle chan text } {
             append games $game2
             append games " "
         }
-        say "error" $nick $chan "Prašome pasirinkti vieną iš šių žaidimų:$games"
-        return 0;
+        say "error" $nick $chan [lang_str "please_select_game" [list $games]]
+        return 0
     }
 
     if {$player2==""} {
-        say "error" $nick $chan "Galėtum dar nurodyti su kuo nori žaisti $game (pvz. !play $game $botnick)"
-        return 0;
+        say "error" $nick $chan [lang_str "please_select_oponent" [list $game $game $botnick]]
+        return 0
     }
 
     if {[string equal -nocase $player2 $botnick]==1} {
-        say "error" $nick $chan "Ačiū už pasiūlymą, bet aš esu tik durnas botas... ;)"
-        return 0;
+        say "error" $nick $chan [lang_str "bot_rejects_game"]
+        return 0
     }
 
     if {[string equal -nocase $player2 $nick]==1} {
-        say "error" $nick $chan "Atleisk, bet tu negali žaisti prieš save... ;)"
+        say "error" $nick $chan [lang_str "bot_cant_invite_you"]
         return 0;
     }
 
     if {[onchan $nick]==0} {
-        say "error" $nick $chan "Tu nesėdi nei viename iš mano sėdimų kanalų"
-        say "error" $nick $chan "Todėl aš nenoriu, kad jis dalyvautu šiame žaidime"
+        multiline_translated_say2 "error" $nick $chan "you_not_in_my_channels"
         return
     }
 
     if {[onchan $player2]==0} {
-        say "error" $nick $chan "Žaidėjas(-a) $player2 nėra nei viename iš mano sėdimų kanalų"
-        say "error" $nick $chan "Todėl aš nenoriu, kad jis dalyvautu šiame žaidime"
+        multiline_translated_say2 "error" $nick $chan "another_player_not_in_my_channels" [list $player2]
         return
     }
 
     if {[string equal -nocase [mysql_getcell "Users" "Command" "nick = '$player2'"]    ""]==0} {
-        say "error" $nick $chan "Žaidėjas(-a) $player2 dabar yra užimtas (žaidžiama kita partija)"
-        return;
+        say "error" $nick $chan [lang_str "another_player_now_playing" [list $player2]]
+        return
     }
 
     if {[string equal -nocase [mysql_getcell "Users" "Command" "nick = '$nick'"] ""]==0} {
-        say "error" $nick $chan "Jūs pats dabar žaidžiate kitą partiją!"
-        say "error" $nick $chan "Žaisti kelias partijas iškarto tikrai aš neleisiu!"
-        return;
+        multiline_translated_say2 "error" $nick $chan "you_are_playing_other_game"
+        return
     }
 
     set count [db_count "Users" "nick = '$player2'"]
     if {$count<1} {
-        set msg "$nick siūlo tau sužaisti $game\n"
-        append msg "Tačiau tu neregistruotas mano duomenų bazėje... :(\n"
-        append msg "Gal norėtum užsiregistruoti?\n"
-        append msg "Tuomet rašyk: /MSG $botnick USER REGISTER slaptažodis tavo@e-pastas.lt"
-        say "game" $player2 $chan $msg
-        set msg "$player2 nėra registruotas žaidėjas mano duomenų bazėje\n"
-        append msg "Kad galėtum su juo žaisti, jis turi užsiregistruoti"
-        say "game" $nick $chan $msg
+        multiline_translated_say2 "game" $player2 $chan "got_invitation_but_not_registered" [list $nick $game $botnick]
+        multiline_translated_say2 "game" $nick $chan "invited_but_another_player_must_register_first" [list $player2]
         return 0;
     }
 
-    say "game" $nick $chan "Pasirinktas žaidimas: $game"
-    say "game" $nick $chan "Norima žaisti su $player2"
-    say "game" $nick $chan "Laukiama atsakymo..."
+    multiline_translated_say2 "game" $nick $chan "selected_game_info" [list $game $player2]
     WaitEvent $player2 "wagree $player2 $game"
 
-    say "game" $player2 $chan "$nick siūlo tau sužaisti $game"
-    say "game" $player2 $chan "Ar sutinki (Taip arba Ne)?"
+    multiline_translated_say2 "game" $player2 $chan "invited_to_game" [list $nick $game]
     WaitEvent $player2 "agree $nick $game"
 }
 
@@ -886,33 +874,33 @@ proc Game_SeaBattle { command game nick player text } {
             if {[string equal -nocase "shoot" $command]==0} {
                 return;
             }
-            set msg "Štai taip dabar atrodo jūsų žemėlapis:"
+            set msg [lang_str "this_is_how_your_map_looks"]
             say "game" $nick $nick $msg
             DrawGrid2 $nick
-            say "game" $nick $nick "Nurodykite koordinates:"
+            say "game" $nick $nick [lang_str "enter_coordinates"]
             return
         }
         "!map2" {
             if {[string equal -nocase "shoot" $command]==0} {
                 return;
             }
-            set msg "Štai taip dabar atrodo priešininko žemėlapis:"
+            set msg [lang_str "this_is_how_oponent_map_looks"]
             say "game" $nick $nick $msg
             DrawGrid3 $nick $player
-            say "game" $nick $nick "Nurodykite kordinates:"
+            say "game" $nick $nick [lang_str "enter_coordinates"]
             return
         }
         "!map3" {
             if {[string equal -nocase "shoot" $command]==0} {
                 return;
             }
-            set msg "Štai taip dabar atrodo jūsų žemėlapis:"
+            set msg [lang_str "this_is_how_your_map_looks"]
             say "game" $nick $nick $msg
             DrawGrid2 $nick
-            set msg "Štai taip dabar atrodo priešininko žemėlapis:"
+            set msg [lang_str "this_is_how_oponent_map_looks"]
             say "game" $nick $nick $msg
             DrawGrid3 $nick $player
-            say "game" $nick $nick "Nurodykite kordinates:"
+            say "game" $nick $nick [lang_str "enter_coordinates"]
             return
         }
         "!end" {
@@ -923,8 +911,8 @@ proc Game_SeaBattle { command game nick player text } {
             DoSQL "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND Arguments LIKE '$nick %';" 
             DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$nick' LIMIT 1 ;"
             DoSQL "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` = '$player' LIMIT 1 ;"
-            say "game" $nick $nick "$player labai nesinori užbaigti partijos, bet ka jau darysi...\nIki kito karto!"
-            say "game" $player $player "$nick nebenori toliau žaisti\nNutrauktas žaidimas"
+            multiline_translated_say2 "game" $nick $nick "end_iniciated_by_you" [list $player]
+            multiline_translated_say2 "game" $player $player "end_iniciated_by_other_player" [list $nick]
             return
         }
     }
@@ -967,16 +955,16 @@ proc Game_SeaBattle { command game nick player text } {
                 Game_SeaBattle "$command l" $game $nick $player $lst
             }
             if {[lsearch $grid_width $coll]==-1} {
-                say "game" $nick $nick "Klaida: blogai nurodytos kordinatės ($coll$row)"
+                say "game" $nick $nick [lang_str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 return 0;
             }
             if {[lsearch $grid_height $row]==-1} {
-                say "game" $nick $nick "Klaida: blogai nurodytos kordinatės ($coll$row)"
+                say "game" $nick $nick [lang_str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 return 0;
             }
@@ -985,7 +973,7 @@ proc Game_SeaBattle { command game nick player text } {
             if {$val!="0"} {
                 say "game" $nick $nick "Jau kažkoks laivas yra pastatytas tame langelyje ($coll$row)"
                 if {$arg!="l"} {
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 return 0;
             }     
@@ -1008,7 +996,7 @@ proc Game_SeaBattle { command game nick player text } {
                         }
                     }
                 }
-                set msg "Štai taip dabar atrodo jūsų žemėlapis:"
+                set msg [lang_str "this_is_how_your_map_looks"]
                 say "game" $nick $nick $msg
                 DrawGrid $data $nick
                 switch $cmd {
@@ -1042,16 +1030,16 @@ proc Game_SeaBattle { command game nick player text } {
                 set lin 1
             }
             if {[lsearch $grid_width $coll]==-1} {
-                say "game" $nick $nick "Klaida: blogai nurodytos kordinatės ($coll$row)"
+                say "game" $nick $nick [lang_str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 return 0;
             }
             if {[lsearch $grid_height $row]==-1} {
-                say "game" $nick $nick "Klaida: blogai nurodytos kordinatės ($coll$row)"
+                say "game" $nick $nick [lang_str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 return 0;
             }
@@ -1091,7 +1079,7 @@ proc Game_SeaBattle { command game nick player text } {
                         say "game" $player $player "$count laiveliai liko"
                         say "game" $nick $nick "$count laiveliai liko"
                     }
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
                 "0" {
                     say "game" $player $player "$nick šovė į $coll$row"
@@ -1100,7 +1088,7 @@ proc Game_SeaBattle { command game nick player text } {
                     DoSQL "UPDATE `Seabattle` SET `Value` = '3' WHERE nick ='$player' and row = '$row' and collumn = '$coll' LIMIT 1 ;"
                     WaitEvent $nick "waitshoot $player $game"
                     WaitEvent $player "shoot $nick $game"
-                    say "game" $player $player "Nurodykite kordinates:"
+                    say "game" $player $player [lang_str "enter_coordinates"]
                 }
                 "3" {
                     say "game" $player $player "Kreivos rankos neklauso $nick galvos...:)\nDabar galite nurodyti kordinates, kur šauti:"
@@ -1110,7 +1098,7 @@ proc Game_SeaBattle { command game nick player text } {
                 }
                 "2" {
                     say "game" $nick $nick "Jau kartą esatę čia pataikęs(-iusi)..."
-                    say "game" $nick $nick "Nurodykite kordinates:"
+                    say "game" $nick $nick [lang_str "enter_coordinates"]
                 }
             }
         } 
@@ -1121,15 +1109,7 @@ proc PlayGameInfo_Start { game nick } {
     global grid_width grid_height
     switch [string tolower $game] {
         "seabattle" {
-            set msg "seabattle - tai seno gero žaidimo Jūrų Mūšis irc versija\n"
-            append msg "Jei nesuprantate kaip žaisti šį žaidimą, pasinaudokite pagalbos sistema\n"
-            append msg [emptyline]
-            append msg "\Norėdami nutraukti žaidimą bet kada parašykite \!end\ lange, kur vyksta žaidimas, arba kurį laiką tiersiog jo nežaiskite - žaidimas bus nutrauktas automatiškai."
-            append msg [emptyline]
-            append msg "Dabar Jūs turite išstatyti savo jūrų kariauną\n"
-            append msg "Tai jūs galite padaryti, rašydami kordinates, kuriame langelyje jūs norite pastatyti laivelį\n"
-            append msg "Štai jums žemėlapis, kad būtų lengviau:"
-            say "game" $nick $nick $msg
+            multiline_translated_say2 "game" $nick $nick "seabattle_start_info"
             DrawGrid [list null] $nick
         }
     }

@@ -120,4 +120,64 @@ array set translation {
         "----------------------------------"
     }
     "enter_coordinate" "Nurodykite kordinates (pvz.: <i>a 1</i>):"
+    "please_select_game" "Prašome pasirinkti vieną iš šių žaidimų: %s"
+    "please_select_oponent" "Galėtum dar nurodyti su kuo nori žaisti %s (pvz. !play %s %s)"
+    "bot_rejects_game" "Ačiū už pasiūlymą, bet aš esu tik durnas botas... ;)"
+    "bot_cant_invite_you" "Atleisk, bet tu negali žaisti prieš save... ;)"
+    "you_not_in_my_channels" {
+        "Tu nesėdi nei viename iš mano sėdimų kanalų"
+        "Todėl aš nenoriu, kad jis dalyvautu šiame žaidime"
+    }
+    "another_player_not_in_my_channels" {
+        "Žaidėjas(-a) %s nėra nei viename iš mano sėdimų kanalų"
+        "Todėl aš nenoriu, kad jis dalyvautu šiame žaidime"
+    }
+    "another_player_now_playing" "Žaidėjas(-a) %s dabar yra užimtas (žaidžiama kita partija)"
+    "you_are_playing_other_game" {
+        "Jūs pats dabar žaidžiate kitą partiją!"
+        "Žaisti kelias partijas iškarto tikrai aš neleisiu!"
+    }
+    "selected_game_info" {
+        "Pasirinktas žaidimas: %s"
+        "Norima žaisti su %s"
+        "Laukiama atsakymo..."
+    }
+    "invited_to_game" {
+        "%s siūlo tau sužaisti %s"
+        "Ar sutinki (Taip arba Ne)?"
+    }
+    "got_invitation_but_not_registered" {
+        "%s siūlo tau sužaisti %s"
+        "Tačiau tu neregistruotas mano duomenų bazėje... :("
+        "Gal norėtum užsiregistruoti?"
+        "Tuomet rašyk: <b>/MSG %s USER REGISTER <i>slaptažodis</i> <i>tavo@e-pastas.lt</i></b>"
+    }
+    "invited_but_another_player_must_register_first" {
+       "%s nėra registruotas žaidėjas mano duomenų bazėje"
+       "Kad galėtum su juo žaisti, jis turi užsiregistruoti"
+    }
+    "seabattle_start_info" {
+        "seabattle - tai seno gero žaidimo Jūrų Mūšis irc versija"
+        "Jei nesuprantate kaip žaisti šį žaidimą, pasinaudokite pagalbos sistema"
+        ""
+        "Norėdami nutraukti žaidimą bet kada parašykite <b>!end</b> lange, kur vyksta žaidimas, arba kurį laiką tiersiog jo nežaiskite - žaidimas bus nutrauktas automatiškai."
+        ""
+        "Dabar Jūs turite išstatyti savo jūrų kariauną"
+        "Tai jūs galite padaryti, rašydami kordinates, kuriame langelyje jūs norite pastatyti laivelį"
+        "Štai jums žemėlapis, kad būtų lengviau:"
+    }
+    "yes" "taip"
+    "no" "ne"
+    "this_is_how_your_map_looks" "Štai taip dabar atrodo jūsų žemėlapis:"
+    "this_is_how_oponent_map_looks" "Štai taip dabar atrodo priešininko žemėlapis:"
+    "enter_coordinates" "Nurodykite kordinates:"
+    "end_iniciated_by_you" {
+        "%s labai nesinori užbaigti partijos, bet ka jau darysi..."
+        "Iki kito karto!"
+    }
+    "end_iniciated_by_other_player" {
+         "%s nebenori toliau žaisti"
+         "Nutrauktas žaidimas"
+    }
+    "bad_coordinates" "Klaida: blogai nurodytos kordinatės (%s%s)"
 }
