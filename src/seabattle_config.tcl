@@ -21,3 +21,7 @@ set language "lt"
 set grid_width [list g a m e s]
 set grid_height [list 1 2 3 4 5]
 set ship_count 5
+
+# Registrations
+set nickserv_auth_needed false
+set nickserv_host "aitvarasnet.org"
