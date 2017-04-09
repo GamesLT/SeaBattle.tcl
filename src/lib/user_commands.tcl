@@ -64,7 +64,7 @@ proc ::UserCommands::setData { nick params chan } {
 }
 
 proc ::UserCommands::register { nick params host handle text } {
-    global nickserv_host nickserv_auth_needed tdata
+    global nickserv_host nickserv_auth_needed tdata nickserv_timeout
     if {[isignore "*!*@$nickserv_host"]==1} {
         killignore "*!*@$nickserv_host";
     }
