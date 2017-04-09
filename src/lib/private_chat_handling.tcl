@@ -1,5 +1,5 @@
 namespace eval PrivateChatHandling {
-   namespace export handle
+   namespace export handle checkForFlood
 }
 
 proc ::PrivateChatHandling::handle { nick host handle text } {
@@ -55,7 +55,12 @@ proc ::PrivateChatHandling::handle { nick host handle text } {
             set command [lindex $txt 0]
             set game [lindex $txt 2]
             set player [lindex $txt 1]
+            puts $text
             PlayGame $command $game $nick $player $text
         }
     }
+}
+
+proc ::PrivateChatHandling::checkForFlood {nick host handle type channel} {
+    return 1
 }

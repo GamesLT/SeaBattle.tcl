@@ -75,7 +75,7 @@ proc ::UserCommands::register { nick params host handle text } {
     set tnick $nick
     bind NOTC -|- "$nick*" ndata
     if {$nickserv_auth_needed} {
-        utimer $nickserv_timeout ::UserCommands::regerror
+        set tdata(timer_id) [utimer $nickserv_timeout ::UserCommands::regerror]
         putserv "PRIVMSG nickserv@$nickserv_host :info $nick"
     } else {
         ndata "NickServ" $host $handle "$nick is registered" ""
@@ -84,6 +84,8 @@ proc ::UserCommands::register { nick params host handle text } {
 
 proc ::UserCommands::regerror {} {
     global tdata
+    killutimer $tdata(timer_id)
+    unset tdata(timer_id)
     if {$tdata(nick)==""} {
         return;
     }

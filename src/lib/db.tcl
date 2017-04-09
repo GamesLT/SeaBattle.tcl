@@ -12,8 +12,16 @@ proc ::DB::try_load { mpath } {
     package require mysqltcl
 }
 
+proc ::DB::log {sql} {
+    global log_queries
+    if {$log_queries} { 
+        putlog "SQL: $sql"
+    }
+}
+
 proc ::DB::count { table query } {
     set sql "select count(*) as count from $table where $query";
+    ::DB::log $sql
     set result [mysqlquery $::DB::connection $sql]
     set row [mysqlnext $result]
 
@@ -28,6 +36,7 @@ proc ::DB::connect { sqlhost sqluser sqlpass sqldb } {
 
 proc ::DB::getcell { table cell where } {
     set sql "select $cell from $table where $where";
+    ::DB::log $sql
     set result [mysqlquery $::DB::connection $sql]
     set row [mysqlnext $result]
     set first [string range $row 0 0]
@@ -41,10 +50,12 @@ proc ::DB::getcell { table cell where } {
 }
 
 proc ::DB::exec { sql } {
+    ::DB::log $sql
     return [mysqlexec $::DB::connection $sql]
 }
 
 proc ::DB::query { sql } {
+    ::DB::log $sql
     return [mysqlquery $::DB::connection $sql]
 }
 

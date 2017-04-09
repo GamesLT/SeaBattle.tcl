@@ -26,3 +26,6 @@ set ship_count 5
 set nickserv_auth_needed false
 set nickserv_host "aitvarasnet.org"
 set nickserv_timeout 5
+
+# debug
+set log_queries no

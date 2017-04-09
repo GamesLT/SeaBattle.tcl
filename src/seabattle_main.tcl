@@ -49,6 +49,7 @@ bind pub $qstat_flag "!admin" ::AdminCommands::handle
 bind pub $qstat_flag "!help" ::HelpCommand::handle
 bind msg $qstat_flag "user" ::UserCommands::handle
 bind msgm $qstat_flag * ::PrivateChatHandling::handle
+bind flud $qstat_flag "msg" ::PrivateChatHandling::checkForFlood
 
 #bind JOIN -|- * pub:join
 
@@ -126,6 +127,8 @@ proc ndata { nick host handle text dest} {
     set nick [lindex $text 0]
     set host $tdata(host)
     if {[string equal -nocase $xnick NickServ]==1} {
+        killutimer $tdata(timer_id)
+        unset tdata(timer_id)
         set tdata(nick) ""
         set chan $nick
         unbind NOTC -|- "$nick*" ndata
@@ -156,11 +159,10 @@ bind pub -||- "!stats" pub:stats
 bind msg $qstat_flag "play" pub:play2
 bind msg $qstat_flag "stats" pub:stats2
 
-timer 1 autoend
+utimer 10 autoend
 
-proc autoend {}    {
+proc autoend {} {
     set dothiscommand [::DB::getcell "TodoList" "Arguments" "Command = 'CheckIfAutoEnd' LIMIT 1"]
-    timer 1 autoend
     if {[string trim $dothiscommand]==""} {
         return;
     }
@@ -327,9 +329,9 @@ proc Game_SeaBattle { command game nick player text } {
     set arg [lindex $command 1]
     set command [lindex $command 0]
     set laikas [get_unixtime]
-    ::DB::exec "UPDATE `Users` SET LastAction = '$laikas' WHERE `Nick` = '$nick' LIMIT 1;"
+    ::DB::exec "UPDATE `Users` SET LastAction = NOW() WHERE `Nick` = '$nick' LIMIT 1;"
     ::DB::exec "DELETE FROM TodoList WHERE Command = 'CheckIfAutoEnd' AND (Arguments LIKE '% $nick' OR Arguments LIKE '$nick %');" 
-    ::DB::exec "INSERT INTO `TodoList` (`ID`, `Command`, `Arguments`) VALUES ('', 'CheckIfAutoEnd', '$nick $player');" 
+    ::DB::exec "INSERT INTO `TodoList` (`Command`, `Arguments`) VALUES ('CheckIfAutoEnd', '$nick $player');" 
     set textp [string tolower $text]
     if {[dict exists $::Language::commands_alias $textp]} {
         set textp [dict get $::Language::commands_alias $textp]
@@ -462,7 +464,7 @@ proc Game_SeaBattle { command game nick player text } {
                 set msg [::Language::str "this_is_how_your_map_looks"]
                 ::Say::default "game" $nick $nick $msg
                 DrawGrid $data $nick
-                switch $cmd {
+                switch [string tolower $cmd] {
                     "waituntilplace" {
                         WaitEvent $player "shoot $nick $game"
                         ::Language::say "game" $player $player "seabattle_starts_enter_coordinates"
@@ -470,8 +472,8 @@ proc Game_SeaBattle { command game nick player text } {
                         ::Language::say "game" $nick $nick "seabattle_soon_you_will_need_to_shhot_something" [list $player]
                     }
                     default {
-                        WaitEvent $nick "waituntilplace $nick $game"
-                        ::Say::default "game" $nick $nick [::Language::str "wait_for_player_to_places_ships" [list $nick]]
+                        WaitEvent $nick "waituntilplace $player $game"
+                        ::Say::default "game" $nick $nick [::Language::str "wait_for_player_to_places_ships" [list $player]]
                     }
                 }
             }
@@ -526,7 +528,7 @@ proc Game_SeaBattle { command game nick player text } {
                             }
                         }
                         ::Say::default "game" $player $player [::Language::str "that_was_last_ship"]
-                        ::Say::default "game" $player $player [::Language::str "i_will_show_your_opnent_map"]
+                        ::Say::default "game" $player $player [::Language::str "i_will_show_your_opnent_map" [list $nick]]
                         DrawGrid $data $player
                         ::Say::default "game" $player $player [::Language::str "has_won" [list $nick]]
                         ::DB::exec "UPDATE `Users` SET StatWon = StatWon + 1 WHERE `Nick` = '$nick' LIMIT 1;"
@@ -656,15 +658,19 @@ proc DrawGrid3 { nick player } {
 proc PlayBegin { game nick player } {
     global grid_width grid_height
     ::DB::exec "DELETE FROM `Seabattle` WHERE `Nick` IN ('$nick', '$player');"
+    set sql "INSERT INTO `Seabattle` (`Nick` ,`Row` ,`Collumn` ,`Value` ) VALUES "
+    set parts [list]
     foreach y $grid_height {
         foreach x $grid_width {
-            ::DB::exec "INSERT INTO `Seabattle` (`ID` ,`Nick` ,`Row` ,`Collumn` ,`Value` )  VALUES ('', '$nick', '$y', '$x', '0');" 
-            ::DB::exec "INSERT INTO `Seabattle` (`ID` ,`Nick` ,`Row` ,`Collumn` ,`Value` )  VALUES ('', '$player', '$y', '$x', '0');" 
+            lappend parts "('$nick', '$y', '$x', '0')"
+            lappend parts "('$player', '$y', '$x', '0')"
         }
-    }
+    } 
+    ::DB::exec [concat $sql [join $parts ", "] ";"]
+    WaitEvent $nick "place $player $game"
+    WaitEvent $player "place $nick $game"
     PlayGameInfo_Start $game $nick
     ::Say::default "game" $nick $nick [::Language::str "enter_coordinate"]
-    WaitEvent $nick "place $player $game"
     PlayGameInfo_Start $game $player
     ::Say::default "game" $player $player [::Language::str "enter_coordinate"]
 }
