@@ -79,6 +79,6 @@ proc ::Language::privmsg { ni lang_string {params {}}} {
 
 proc ::Language::say { type nick1 nick2 lang_string {params {}}} {
     foreach line [::Language::str $lang_string $params true] {
-        say $type $nick1 $nick2 $line
+        ::Say::default $type $nick1 $nick2 $line
     }
 }

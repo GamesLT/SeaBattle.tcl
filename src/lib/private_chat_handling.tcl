@@ -32,15 +32,15 @@ proc ::PrivateChatHandling::handle { nick host handle text } {
             set player [lindex $txt 1]
             set game [lindex $txt 2]
             if {[string equal -nocase $text [::Language::str "no"]]==1} {
-                say "game" $player $player [::Language::str "rejected_invitation" [list $nick $game]]
+                ::Say::default "game" $player $player [::Language::str "rejected_invitation" [list $nick $game]]
                 WaitEvent $nick ""
                 WaitEvent $player ""
                 return 1;
             }
             if {[string equal -nocase $text [::Language::str "yes"]]==1}    {
-                say "game" $player $player [::Language::str "accepted_invitation" [list $nick]]
-                say "game" $player $player [::Language::str "game_will_start_soon"]
-                say "game" $nick $nick [::Language::str "game_will_start_soon"]
+                ::Say::default "game" $player $player [::Language::str "accepted_invitation" [list $nick]]
+                ::Say::default "game" $player $player [::Language::str "game_will_start_soon"]
+                ::Say::default "game" $nick $nick [::Language::str "game_will_start_soon"]
                 WaitEvent $nick ""
                 WaitEvent $player ""
                 putlog toliau
@@ -48,8 +48,8 @@ proc ::PrivateChatHandling::handle { nick host handle text } {
                 putlog toliaua
                 return 1;
             }
-            say "game" $nick $nick [::Language::str "i_cant_understand"]
-            say "game" $nick $nick [::Language::str "write_yes_or_no"]
+            ::Say::default "game" $nick $nick [::Language::str "i_cant_understand"]
+            ::Say::default "game" $nick $nick [::Language::str "write_yes_or_no"]
         }
         default {
             set command [lindex $txt 0]

@@ -8,8 +8,9 @@ CREATE TABLE `Users` (
   StatNA     INT                    NOT NULL DEFAULT 0,
   StatWon    INT                    NOT NULL DEFAULT 0,
   StatLost   INT                    NOT NULL DEFAULT 0,
-  LastLogged TIMESTAMP              NULL ON UPDATE CURRENT_TIMESTAMP,
-  LastAction TIMESTAMP              DEFAULT CURRENT_TIMESTAMP
+  LastLogged TIMESTAMP              NULL,
+  LastAction TIMESTAMP              DEFAULT CURRENT_TIMESTAMP,
+  command    VARCHAR(255)           NULL 
 );
 
 CREATE TABLE `Help` (

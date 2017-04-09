@@ -37,6 +37,7 @@ source [file join $lib_path "admin_commands.tcl"]
 source [file join $lib_path "user_commands.tcl"]
 source [file join $lib_path "help_command.tcl"]
 source [file join $lib_path "private_chat_handling.tcl"]
+source [file join $lib_path "say.tcl"]
 
 ::Language::load $spath $language
 ::DB::try_load $mpath
@@ -60,28 +61,6 @@ proc isadmin { nick }  {
 proc nickserv_identify { nick host hand arg txt } { 
     global bot_pass nickserv_host
     putquick "PRIVMSG nickserv@$nickserv_host :identify $bot_pass"
-}
-
-proc say { md ns chan text } {
-    global nick
-    set lst [list "%botname%" "$nick"]
-    set text [string map $lst $text]
-    set txt [split $text " "]
-    set text "$text"
-    set txt [split $text "\n"]
-    foreach item $txt {
-        switch [string tolower $md] {
-            "error" {
-                putserv "NOTICE $ns :$item"
-            }
-            "public" {
-                putserv "PRIVMSG $chan :$item"
-            }
-            default {
-                putserv "PRIVMSG $ns :$item"
-            }
-        }
-    }
 }
 
 proc is_good_command { type text } {
@@ -118,18 +97,6 @@ proc WaitEvent { nick event } {
     set rez [::DB::exec $sql]
 }
 
-proc say_unknown { ni } {
-    global nick
-    set id [::DB::getcell "Users" "id" "nick = '$ni'"]
-    if {[string trim $id]==""} {
-        global botnick
-        ::Language::privmsg $ni "please_register" [list $botnick]
-    } else {
-        ::Language::privmsg $ni "enter_pass"
-        WaitEvent $ni "enterpass"
-    }
-}
-
 proc get_unixtime {} {
     set ct(hrs) [clock format [clock seconds] -format %H]
     set ct(min) [clock format [clock seconds] -format %M]
@@ -152,23 +119,13 @@ proc random_item {list} {
 
 set tdata("unknown") ""
 
-proc regerror {} {
-    global tdata
-    if {$tdata(nick)==""} {
-        return;
-    }
-    set nick $tdata(nick)
-    ::Language::say "error" $nick $nick "nickserv_registration_is_must"
-    unbind NOTC -|- "$nick*" ndata
-}
-
 proc ndata { nick host handle text dest} {
     global tdata db_handle nickserv_auth_needed
     set xnick $nick
     set xhost $host
     set nick [lindex $text 0]
     set host $tdata(host)
-    if {[string equal -nocase $xnick NickServ]==1 || !$nickserv_auth_needed} {
+    if {[string equal -nocase $xnick NickServ]==1} {
         set tdata(nick) ""
         set chan $nick
         unbind NOTC -|- "$nick*" ndata
@@ -177,12 +134,12 @@ proc ndata { nick host handle text dest} {
         set id [::DB::getcell "Users" "id" "nick = '$nick'"]
         putlog "$id>>"
         if {[string trim $id]!=""} {
-            say "error" $nick $chan [::Language::str "such_user_exists"]
+            ::Say::default "error" $nick $chan [::Language::str "such_user_exists"]
             return 0;
         }
-        set sql "INSERT INTO `Users` (`ID`, `Nick`, `Admin`, `Host`, `Password`, `E-Mail`, `LastLogged`)"
+        set sql "INSERT INTO `Users` (`Nick`, `Admin`, `Host`, `Password`, `E-Mail`)"
         append sql "VALUES ("
-        append sql "'', '$nick', 'false', '$host', '$pass', '$email', ''"
+        append sql "'$nick', 'false', '$host', '$pass', '$email'"
         append sql ");"
         set rez [::DB::exec $sql]
         ::Language::say "error" $nick $chan "registration_msg" [list $pass $email]
@@ -211,7 +168,7 @@ proc autoend {}    {
     set player2 [lindex $dothiscommand 1]
     set player $player2
     if {[onchan $nick]==0} {
-        say "error" $player2 $player2 [::Language::str "other_player_quited" [list $nick]]
+        ::Say::default "error" $player2 $player2 [::Language::str "other_player_quited" [list $nick]]
         ::Language::say "error" $nick $nick "registration_msg" [list $player2]
         ::DB::exec "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd';"
         ::DB::exec "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player');"
@@ -220,7 +177,7 @@ proc autoend {}    {
         return;
     }
     if {[onchan $player2]==0} {
-        say "error" $nick $nick [::Language::str "other_player_left_channel" [list $player2]]
+        ::Say::default "error" $nick $nick [::Language::str "other_player_left_channel" [list $player2]]
         ::Language::say "error" $player2 $player2 "you_left_channel" [list $nick]
         ::DB::exec "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd';"
         ::DB::exec "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player');"
@@ -233,16 +190,16 @@ proc autoend {}    {
     set laikas [get_unixtime]
     ::DB::exec "DELETE FROM TodoList WHERE Arguments = '$dothiscommand' AND Command = 'CheckIfAutoEnd'"
     if {$laikas>[expr $lastaction1+960]} {
-        say "error" $nick $nick [::Language::str "game_canceled_because_you_idled"]
-        say "error" $player2 $player2 [::Language::str "game_canceled_because_other_player_not_moved"]
+        ::Say::default "error" $nick $nick [::Language::str "game_canceled_because_you_idled"]
+        ::Say::default "error" $player2 $player2 [::Language::str "game_canceled_because_other_player_not_moved"]
         ::DB::exec "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player')"
         WaitEvent $nick ""
         WaitEvent $player2 ""
         return;
     }
     if {$laikas>[expr $lastaction2+960]} {
-        say "error" $player2 $player2 [::Language::str "game_canceled_because_you_idled"]
-        say "error" $nick $nick [::Language::str "game_canceled_because_other_player_not_moved"]
+        ::Say::default "error" $player2 $player2 [::Language::str "game_canceled_because_you_idled"]
+        ::Say::default "error" $nick $nick [::Language::str "game_canceled_because_other_player_not_moved"]
         ::DB::exec "UPDATE `Users` SET StatNA = StatNA + 1 WHERE `Nick` IN ('$nick', '$player')"
         WaitEvent $nick ""
         WaitEvent $player2 ""
@@ -264,7 +221,7 @@ proc pub:stats { nick host handle chan text } {
             ::Language::say "error" $nick $chan "cant_show_stats"
             return
         } 
-        say "error" $nick $chan [::Language::str "your_stats"]
+        ::Say::default "error" $nick $chan [::Language::str "your_stats"]
         set user $nick
     } else {
         set user [lindex $text 0]
@@ -272,7 +229,7 @@ proc pub:stats { nick host handle chan text } {
             ::Language::say "error" $nick $chan "cant_show_stats_for" [list $user]
             return
         }
-        say "error" $nick $chan [::Language::str "user_stats" [list $user]]
+        ::Say::default "error" $nick $chan [::Language::str "user_stats" [list $user]]
     }
     set won [::DB::getcell "Users" "StatWon" "Nick = '$user'"] 
     set lost [::DB::getcell "Users" "StatLost" "Nick = '$user'"] 
@@ -287,7 +244,7 @@ proc pub:play { nick host handle chan text } {
     set player2 [lindex $text 1]
 
     if {[is_identified $nick $host]==0} {
-        say_unknown $nick
+        ::Say::unknown $nick
         return 0;
     }
       
@@ -304,22 +261,22 @@ proc pub:play { nick host handle chan text } {
             append games $game2
             append games " "
         }
-        say "error" $nick $chan [::Language::str "please_select_game" [list $games]]
+        ::Say::default "error" $nick $chan [::Language::str "please_select_game" [list $games]]
         return 0
     }
 
     if {$player2==""} {
-        say "error" $nick $chan [::Language::str "please_select_oponent" [list $game $game $botnick]]
+        ::Say::default "error" $nick $chan [::Language::str "please_select_oponent" [list $game $game $botnick]]
         return 0
     }
 
     if {[string equal -nocase $player2 $botnick]==1} {
-        say "error" $nick $chan [::Language::str "bot_rejects_game"]
+        ::Say::default "error" $nick $chan [::Language::str "bot_rejects_game"]
         return 0
     }
 
     if {[string equal -nocase $player2 $nick]==1} {
-        say "error" $nick $chan [::Language::str "bot_cant_invite_you"]
+        ::Say::default "error" $nick $chan [::Language::str "bot_cant_invite_you"]
         return 0;
     }
 
@@ -334,7 +291,7 @@ proc pub:play { nick host handle chan text } {
     }
 
     if {[string equal -nocase [::DB::getcell "Users" "Command" "nick = '$player2'"]    ""]==0} {
-        say "error" $nick $chan [::Language::str "another_player_now_playing" [list $player2]]
+        ::Say::default "error" $nick $chan [::Language::str "another_player_now_playing" [list $player2]]
         return
     }
 
@@ -383,9 +340,9 @@ proc Game_SeaBattle { command game nick player text } {
                 return;
             }
             set msg [::Language::str "this_is_how_your_map_looks"]
-            say "game" $nick $nick $msg
+            ::Say::default "game" $nick $nick $msg
             DrawGrid2 $nick
-            say "game" $nick $nick [::Language::str "enter_coordinates"]
+            ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
             return
         }
         "!map2" {
@@ -393,9 +350,9 @@ proc Game_SeaBattle { command game nick player text } {
                 return;
             }
             set msg [::Language::str "this_is_how_oponent_map_looks"]
-            say "game" $nick $nick $msg
+            ::Say::default "game" $nick $nick $msg
             DrawGrid3 $nick $player
-            say "game" $nick $nick [::Language::str "enter_coordinates"]
+            ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
             return
         }
         "!map3" {
@@ -403,12 +360,12 @@ proc Game_SeaBattle { command game nick player text } {
                 return;
             }
             set msg [::Language::str "this_is_how_your_map_looks"]
-            say "game" $nick $nick $msg
+            ::Say::default "game" $nick $nick $msg
             DrawGrid2 $nick
             set msg [::Language::str "this_is_how_oponent_map_looks"]
-            say "game" $nick $nick $msg
+            ::Say::default "game" $nick $nick $msg
             DrawGrid3 $nick $player
-            say "game" $nick $nick [::Language::str "enter_coordinates"]
+            ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
             return
         }
         "!end" {
@@ -461,34 +418,34 @@ proc Game_SeaBattle { command game nick player text } {
                 Game_SeaBattle "$command l" $game $nick $player $lst
             }
             if {[lsearch $grid_width $coll]==-1} {
-                say "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
+                ::Say::default "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
                 return 0;
             }
             if {[lsearch $grid_height $row]==-1} {
-                say "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
+                ::Say::default "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
                 return 0;
             }
             set count [::DB::count "Seabattle" "nick = '$nick' and value = '1'"]
             set val [::DB::getcell "Seabattle" "value" "nick ='$nick' and row = '$row' and collumn = '$coll'"]
             if {$val!="0"} {
-                say "game" $nick $nick [::Language::str "there_is_alread_a_ship" [list $coll $row]]
+                ::Say::default "game" $nick $nick [::Language::str "there_is_alread_a_ship" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
                 return 0;
             }     
             set id [::DB::getcell "Seabattle" "id" "nick ='$nick' and row = '$row' and collumn = '$coll'"]
             ::DB::exec "UPDATE Seabattle SET `Value` = '1' WHERE `ID` = '$id' LIMIT 1;"
-            say "game" $nick $nick [::Language::str "you_just_places_a_ship" [list [expr $count+1] $coll $row]]
+            ::Say::default "game" $nick $nick [::Language::str "you_just_places_a_ship" [list [expr $count+1] $coll $row]]
             if {$count<$ship_count} {
                 if {$arg!="l"} {
-                    say "game" $nick $nick [::Language::str "enter_coordinates_for_ship" [list [expr $count+2]]]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates_for_ship" [list [expr $count+2]]]
                 }
             } else {
                 set txt [::DB::getcell "Users" "command" "nick = '$player'"]
@@ -503,7 +460,7 @@ proc Game_SeaBattle { command game nick player text } {
                     }
                 }
                 set msg [::Language::str "this_is_how_your_map_looks"]
-                say "game" $nick $nick $msg
+                ::Say::default "game" $nick $nick $msg
                 DrawGrid $data $nick
                 switch $cmd {
                     "waituntilplace" {
@@ -514,7 +471,7 @@ proc Game_SeaBattle { command game nick player text } {
                     }
                     default {
                         WaitEvent $nick "waituntilplace $nick $game"
-                        say "game" $nick $nick [::Language::str "wait_for_player_to_places_ships" [list $nick]]
+                        ::Say::default "game" $nick $nick [::Language::str "wait_for_player_to_places_ships" [list $nick]]
                     }
                 }
             }
@@ -532,26 +489,26 @@ proc Game_SeaBattle { command game nick player text } {
                 set lin 1
             }
             if {[lsearch $grid_width $coll]==-1} {
-                say "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
+                ::Say::default "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
                 return 0;
             }
             if {[lsearch $grid_height $row]==-1} {
-                say "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
+                ::Say::default "game" $nick $nick [::Language::str "bad_coordinates" [list $coll $row]]
                 if {$arg!="l"} {
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
                 return 0;
             }
             set val [::DB::getcell "Seabattle" "value" "nick ='$player' and row = '$row' and collumn = '$coll'"]        
             switch $val {
                 "1" {
-                    say "game" $player $player [::Language::str "shoot_to" [list $nick $coll $row]]
-                    say "game" $player $player [::Language::str "ship_sink"]
+                    ::Say::default "game" $player $player [::Language::str "shoot_to" [list $nick $coll $row]]
+                    ::Say::default "game" $player $player [::Language::str "ship_sink"]
                     ::DB::exec "UPDATE `Seabattle` SET `Value` = '2' WHERE nick ='$player' and row = '$row' and collumn = '$coll';"
-                    say "game" $nick $nick [::Language::str "shoot_good_results"]
+                    ::Say::default "game" $nick $nick [::Language::str "shoot_good_results"]
                     set count [::DB::count "Seabattle" "nick = '$player' and value = '1'"]
                     if {$count<1} {
                         WaitEvent $nick ""
@@ -568,39 +525,39 @@ proc Game_SeaBattle { command game nick player text } {
                                 }
                             }
                         }
-                        say "game" $player $player [::Language::str "that_was_last_ship"]
-                        say "game" $player $player [::Language::str "i_will_show_your_opnent_map"]
+                        ::Say::default "game" $player $player [::Language::str "that_was_last_ship"]
+                        ::Say::default "game" $player $player [::Language::str "i_will_show_your_opnent_map"]
                         DrawGrid $data $player
-                        say "game" $player $player [::Language::str "has_won" [list $nick]]
+                        ::Say::default "game" $player $player [::Language::str "has_won" [list $nick]]
                         ::DB::exec "UPDATE `Users` SET StatWon = StatWon + 1 WHERE `Nick` = '$nick' LIMIT 1;"
                         ::DB::exec "UPDATE `Users` SET StatLost = StatLost + 1 WHERE `Nick` = '$player' LIMIT 1;"
-                        say "game" $nick $nick [::Language::str "congratulations"]
+                        ::Say::default "game" $nick $nick [::Language::str "congratulations"]
                         return 0;
                     } else {
                         set count [::DB::count "Seabattle" "nick = '$player' and value = '1'"]
-                        say "game" $player $player [::Language::str "ships_count" [list $count]]
-                        say "game" $nick $nick [::Language::str "ships_count" [list $count]]
+                        ::Say::default "game" $player $player [::Language::str "ships_count" [list $count]]
+                        ::Say::default "game" $nick $nick [::Language::str "ships_count" [list $count]]
                     }
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
                 "0" {
-                    say "game" $player $player [::Language::str "shoot_to" [list $nick $coll $row]]
-                    say "game" $player $player [::Language::str "there_was_no_ship"]
-                    say "game" $nick $nick [::Language::str "shoot_bad_results"]
+                    ::Say::default "game" $player $player [::Language::str "shoot_to" [list $nick $coll $row]]
+                    ::Say::default "game" $player $player [::Language::str "there_was_no_ship"]
+                    ::Say::default "game" $nick $nick [::Language::str "shoot_bad_results"]
                     ::DB::exec "UPDATE `Seabattle` SET `Value` = '3' WHERE nick ='$player' and row = '$row' and collumn = '$coll';"
                     WaitEvent $nick "waitshoot $player $game"
                     WaitEvent $player "shoot $nick $game"
-                    say "game" $player $player [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $player $player [::Language::str "enter_coordinates"]
                 }
                 "3" {
                     ::Language::say "game" $player $player "bad_hands_doesnt_listens_to_head" [list $nick]
-                    say "game" $nick $nick [::Language::str "oponent_likes_that_you_decided_to_skip" [list $player]]
+                    ::Say::default "game" $nick $nick [::Language::str "oponent_likes_that_you_decided_to_skip" [list $player]]
                     WaitEvent $nick "waitshoot $player $game"
                     WaitEvent $player "shoot $nick $game"
                 }
                 "2" {
-                    say "game" $nick $nick [::Language::str "already_shooted_here"]
-                    say "game" $nick $nick [::Language::str "enter_coordinates"]
+                    ::Say::default "game" $nick $nick [::Language::str "already_shooted_here"]
+                    ::Say::default "game" $nick $nick [::Language::str "enter_coordinates"]
                 }
             }
         } 
@@ -640,7 +597,7 @@ proc DrawGrid { data nick } {
         }
         append msg "\n"
     }
-    say "game" $nick $nick $msg
+    ::Say::default "game" $nick $nick $msg
 }
 
 proc DrawGrid2 { nick } {
@@ -665,7 +622,7 @@ proc DrawGrid2 { nick } {
         }
         append msg "\n"
     }
-    say "game" $nick $nick $msg
+    ::Say::default "game" $nick $nick $msg
 }
 
 proc DrawGrid3 { nick player } {
@@ -692,7 +649,7 @@ proc DrawGrid3 { nick player } {
             append msg "\"
             append msg "\n"
         }
-        say "game" $nick $nick $msg
+        ::Say::default "game" $nick $nick $msg
     }
 }
 
@@ -706,10 +663,10 @@ proc PlayBegin { game nick player } {
         }
     }
     PlayGameInfo_Start $game $nick
-    say "game" $nick $nick [::Language::str "enter_coordinate"]
+    ::Say::default "game" $nick $nick [::Language::str "enter_coordinate"]
     WaitEvent $nick "place $player $game"
     PlayGameInfo_Start $game $player
-    say "game" $player $player [::Language::str "enter_coordinate"]
+    ::Say::default "game" $player $player [::Language::str "enter_coordinate"]
 }
 
 set my_games [string map {"Game_" ""} [info commands "Game_*"]]
