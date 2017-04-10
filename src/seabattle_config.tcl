@@ -15,7 +15,7 @@ set sqlhost "localhost"
 set sqldb "seabattle"
 
 # Language
-set language "lt"
+set language "en"
 
 # Ships playfield data
 set grid_width [list g a m e s]

@@ -44,6 +44,7 @@ source [file join $lib_path "say.tcl"]
 ::DB::connect $sqlhost $sqluser $sqlpass $sqldb
 
 set qversion "0.7"
+set tdata("unknown") ""
 
 bind pub $qstat_flag "!admin" ::AdminCommands::handle
 bind pub $qstat_flag "!help" ::HelpCommand::handle
@@ -118,8 +119,6 @@ proc random_item {list} {
     return [lindex $list $random]
 }
 
-set tdata("unknown") ""
-
 proc ndata { nick host handle text dest} {
     global tdata db_handle nickserv_auth_needed
     set xnick $nick
@@ -127,8 +126,10 @@ proc ndata { nick host handle text dest} {
     set nick [lindex $text 0]
     set host $tdata(host)
     if {[string equal -nocase $xnick NickServ]==1} {
-        killutimer $tdata(timer_id)
-        unset tdata(timer_id)
+        if {[info exists tdata(timer_id)]} {
+            killutimer $tdata(timer_id)
+            unset tdata(timer_id)
+        }
         set tdata(nick) ""
         set chan $nick
         unbind NOTC -|- "$nick*" ndata

@@ -84,8 +84,10 @@ proc ::UserCommands::register { nick params host handle text } {
 
 proc ::UserCommands::regerror {} {
     global tdata
-    killutimer $tdata(timer_id)
-    unset tdata(timer_id)
+    if {[info exists tdata(timer_id)]} {
+        killutimer $tdata(timer_id)
+        unset tdata(timer_id)
+    }
     if {$tdata(nick)==""} {
         return;
     }
