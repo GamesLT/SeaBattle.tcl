@@ -43,7 +43,7 @@ source [file join $lib_path "say.tcl"]
 ::DB::try_load $mpath
 ::DB::connect $sqlhost $sqluser $sqlpass $sqldb
 
-set qversion "0.7"
+set qversion "0.8"
 set tdata("unknown") ""
 
 bind pub $qstat_flag "!admin" ::AdminCommands::handle
