@@ -20,7 +20,7 @@ Tai yra skriptas, kuris prideda galimybę žaisti klasikinį [Jūros mūšio](ht
 ### Kaip įdiegti?
 
 Pirmiausia įsitikinkite, kad turite jau darbui paruoštą [Eggdrop](http://www.eggheads.org)/[Windrop](http://windrop.sourceforge.net) bot'ą. Kaip tai padaryti, galima sužinoti, aplankius pasirinkto bot'o tinklalapį arba pasigooglinus. Na, o tuomet reikės atlikti šiuos veiksmus:
- * Atsisiųsti [naujausios versijos archyvą](https://github.com/MekDrop/eggdrop-scripts-seabattle-game/releases/latest)
+ * Atsisiųsti [naujausios versijos archyvą](https://github.com/GamesLT/SeaBattle.tcl/releases/latest)
  * Jį išpakuoti 
  * Nukopijuoti `src/` failus, kur botas laiko savo skriptus
  * Pridėti `source seabattle_main.tcl` eilutę `eggdrop.conf` faile (čia gali tekti prirašyti pilną kelią prie `seabattle_main.tcl` pavadinimo)
@@ -54,7 +54,7 @@ Features included in this script:
 ### How to install?
 
 First thing what you need is to make sure that your [Eggdrop](http://www.eggheads.org)/[Windrop](http://windrop.sourceforge.net) bot is running. How to do, you can find information at your choised bot website. Next things todo:
- * Download [the latest release archive](https://github.com/MekDrop/eggdrop-scripts-seabattle-game/releases/latest)
+ * Download [the latest release archive](https://github.com/GamesLT/SeaBattle.tcl/releases/latest)
  * Unpack archive 
  * Copy `src/` files into folder for your bot scripts
  * Add `source seabattle_main.tcl` line in your `eggdrop.conf` file (NOTE: you need to prefix `seabattle_main.tcl` with correct path)
