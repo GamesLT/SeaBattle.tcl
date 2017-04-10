@@ -1,5 +1,7 @@
-[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt) ![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)
+[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt) ![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592000) [![EN](https://img.shields.io/badge/Language-English-orange.svg)](#description-in-english) [![LT](https://img.shields.io/badge/Language-Lietuvių-orange.svg)](#aprašymas-lietuvių-kalba)
 # Seabattle
+
+![Screenshot](https://raw.githubusercontent.com/GamesLT/SeaBattle.tcl/master/.screenshot.jpg)
 
 ## Aprašymas lietuvių kalba
 
