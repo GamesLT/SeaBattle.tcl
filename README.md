@@ -20,18 +20,18 @@ Tai yra skriptas, kuris prideda galimybę žaisti klasikinį [Jūros mūšio](ht
 Pirmiausia įsitikinkite, kad turite jau darbui paruoštą [Eggdrop](http://www.eggheads.org)/[Windrop](http://windrop.sourceforge.net) bot'ą. Kaip tai padaryti, galima sužinoti, aplankius pasirinkto bot'o tinklalapį arba pasigooglinus. Na, o tuomet reikės atlikti šiuos veiksmus:
  * Atsisiųsti [naujausios versijos archyvą](https://github.com/MekDrop/eggdrop-scripts-seabattle-game/releases/latest)
  * Jį išpakuoti 
- * Nukopijuoti `seabattle.tcl` failą, kur botas laiko savo skriptus
- * Pridėti `source seabattle.tcl` eilutę `eggdrop.conf` faile (čia gali tekti prirašyti pilną kelią prie `seabattle.tcl` pavadinimo)
+ * Nukopijuoti `src/` failus, kur botas laiko savo skriptus
+ * Pridėti `source seabattle_main.tcl` eilutę `eggdrop.conf` faile (čia gali tekti prirašyti pilną kelią prie `seabattle_main.tcl` pavadinimo)
  * Įdiegti [mysqltcl](http://www.xdobry.de/mysqltcl/) biblioteką (jei naudojatės Windows arba negalite visiškai kontroliuoti serverio, tuomet teks atsisiųsti jau sukompiliuotą *3.02* versiją iš šios bibliotekos tinklalapio ir patalpinti `tcllibs` kataloge, kuris turėtų būti šalia nukopijuoto `seabattle.tcl` failo (jei tokio katalogo nėra, tuomet sukurkite).
  * Sukurti naują MySQL duomenų bazę bei importuoti `seabattle.sql` duomenis
- * Paredaguoti nustatymus `seabattle.tcl` skripte
+ * Paredaguoti nustatymus `seabattle_config.tcl` skripte
  * Paleisti bot'ą. 
  
 ### Kaip galima prisidėti prie kūrimo?
 
 Visi norintys yra kviečiami prisidėti prie kūrimo. Galima taisyti klaidas ar pridėti kokių nors naujų savybių. Tai galima padaryti sukuriant šios repozitorijos šaką (angl. fork), ją paredaguojant bei sukuriant naują *Pull request*. Jei nežinote, kaip tai padaryti, pabandykite pasinaudoti [interaktyviomis GitHub pamokomis](https://try.github.io/).
 
-Kad būtų paprasčiau bandyti kurti, galima pasinaudoti šioje repozitorijoje esančia [Vagrant](http://vagrantup.com) konfiguracija, kad pasileisti jau paruoštą virtualią mašiną su veikiančiu bot'u. Tuomet tereikia nuklonavus šią repozitoriją tam pačiame kataloge įvykdyti `vagrant up` komandą. Tuomet bus įmanoma prisijungti prie naujo IRC serverio, kurio adresas - `seabattle.dev', bei apsilankyti  #seabattle kanale. Būtent ten ir sedės botas.
+Kad būtų paprasčiau bandyti kurti, galima pasinaudoti šioje repozitorijoje esančia [Vagrant](http://vagrantup.com) konfiguracija, kad pasileisti jau paruoštą virtualią mašiną su veikiančiu bot'u. Tuomet tereikia nuklonavus šią repozitoriją tam pačiame kataloge įvykdyti `vagrant up` komandą. Tuomet bus įmanoma prisijungti prie naujo IRC serverio, kurio adresas - `seabattle.dev`, bei apsilankyti  #seabattle kanale. Būtent ten ir sedės botas.
 
 ****
 
@@ -54,15 +54,15 @@ Features included in this script:
 First thing what you need is to make sure that your [Eggdrop](http://www.eggheads.org)/[Windrop](http://windrop.sourceforge.net) bot is running. How to do, you can find information at your choised bot website. Next things todo:
  * Download [the latest release archive](https://github.com/MekDrop/eggdrop-scripts-seabattle-game/releases/latest)
  * Unpack archive 
- * Copy `seabattle.tcl` file into folder for your bot scripts
- * Add `source seabattle.tcl` line in your `eggdrop.conf` file (NOTE: you need to prefix `seabattle.tcl` with correct path)
+ * Copy `src/` file into folder for your bot scripts
+ * Add `source seabattle_main.tcl` line in your `eggdrop.conf` file (NOTE: you need to prefix `seabattle_main.tcl` with correct path)
  * Install [mysqltcl](http://www.xdobry.de/mysqltcl/) library (if you use bot on windows or on shared server download compiled *3.02* version and put in `tcllibs` (create if this folder doesn't exists in your system!) subfolder in same folder where `seabattle.tcl` is placed.
  * Create new MySQL database and import there `seabattle.sql` 
- * Edit settings in `seabattle.tcl`
+ * Edit settings in `seabattle_config.tcl`
  * Run your bot. 
  
 ### How to develop?
 
 If you want to add some functionality or fix bugs, you can fork, change and create pull request. If you not sure how this works, try   [interactive GitHub tutorial](https://try.github.io/).
 
-It's possible to run Seabattle in local machine with [Vagrant](http://vagrantup.com). All required files exists in this repo. In that case you must just clone the repo and run `vagrant up`. Than it's possible to connect to IRC server at `seabattle.dev' and join #seabattle IRC channel. There the bot should sit.
+It's possible to run Seabattle in local machine with [Vagrant](http://vagrantup.com). All required files exists in this repo. In that case you must just clone the repo and run `vagrant up`. Than it's possible to connect to IRC server at `seabattle.dev` and join #seabattle IRC channel. There the bot should sit.
