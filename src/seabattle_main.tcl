@@ -20,12 +20,14 @@
 set spath [file dirname [info script]]
 
 source [file join $spath "seabattle_config.tcl"]
-foreach varname [list "qstat_flag" "botpass" "nickserv_host" "skystats_max" "skystats_i" "sqluser" "sqlpass" "sqlhost" "sqldb" "language"] {
+foreach varname [list "grid_vertical_word" "grid_horizontal_word" "qstat_flag" "botpass" "nickserv_host" "skystats_max" "skystats_i" "sqluser" "sqlpass" "sqlhost" "sqldb" "language"] {
     if {![info exists $varname]} {
         puts "$varname in seabattle_config.tcl is not defined"
         exit 2
     }
 }
+set grid_width [split grid_horizontal_word ""]
+set grid_height [split grid_vertical_word ""]
 
 set mpath [file join $spath "tcllibs"]
 set lib_path [file join $spath "lib"]
@@ -43,7 +45,7 @@ source [file join $lib_path "say.tcl"]
 ::DB::try_load $mpath
 ::DB::connect $sqlhost $sqluser $sqlpass $sqldb
 
-set qversion "0.8"
+set qversion "0.9"
 set tdata("unknown") ""
 
 bind pub $qstat_flag "!admin" ::AdminCommands::handle
@@ -63,6 +65,14 @@ proc isadmin { nick }  {
 proc nickserv_identify { nick host hand arg txt } { 
     global bot_pass nickserv_host
     putquick "PRIVMSG nickserv@$nickserv_host :identify $bot_pass"
+}
+
+proc read_env { name default_value } {
+    if { [info exists $::env(name) ] } {
+        return $::env(name)
+    } else {
+        return default_value
+    }
 }
 
 proc is_good_command { type text } {
