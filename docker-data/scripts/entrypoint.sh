@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-service mysql start
+chown -R mysql:mysql /var/lib/mysql
+service mysql restart
 
-if [ -f /root/eggdrop.user ]; then
+if [ -f /srv/eggdrop/data/eggdrop.user ]; then
     echo "Eggdrop user file already exist."
     EGG_PARAMS="-n"
 else

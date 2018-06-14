@@ -17,9 +17,10 @@
 # This is where    the evil TCL code starts, read at your peril!  #
 ################################################################
 
-proc ::read_env { name default_value } {
-    if { [info exists $::env($name) ] } {
-        return $::env($name)
+proc read_env { name default_value } {
+    global env
+    if { [lsearch [array names env] $name] } {
+        return $env($name)
     } else {
         return $default_value
     }

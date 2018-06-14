@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
-service mysql restart
-#mysqld_safe --skip-grant-tables --datadir=/var/lib/mysql --socket=/var/run/mysqld/mysqld.sock &
-mysql --socket=/var/run/mysqld/mysqld.sock -e "CREATE DATABASE $SEABATTLE_DB_NAME;"
-mysql --socket=/var/run/mysqld/mysqld.sock $SEABATTLE_DB_NAME < /tmp/seabattle_install.sql
+debconf-set-selections <<< "mysql-server mysql-server/root_password password $SEABATTLE_DB_PASS"
+debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $SEABATTLE_DB_PASS"
+apt-get install -y mysql-server mysql-client
+
+chown -R mysql:mysql /var/lib/mysql
+service mysql start
+
+mysql -u"$SEABATTLE_DB_USER" -p"$SEABATTLE_DB_PASS" -e "CREATE DATABASE \`$SEABATTLE_DB_NAME\`;"
+mysql -u"$SEABATTLE_DB_USER" -p"$SEABATTLE_DB_PASS" $SEABATTLE_DB_NAME < /srv/backups/install.sql
+
+service mysql stop
