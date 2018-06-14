@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.0"
 
 services:
 
@@ -18,10 +18,18 @@ services:
       SEABATTLE_GRID_HORIZONTAL_WORD: games
       SEABATTLE_GRID_VERTICAL_WORD: 12345
       SEABATTLE_SHIPS_COUNT: 5
-      SEABATTLE_NICKSERV_AUTH_NEEDED: false
-      SEABATTLE_NICKSERV_HOST: aitvarasnet.org
+      SEABATTLE_NICKSERV_AUTH_NEEDED: "false"
+      SEABATTLE_NICKSERV_HOST: irc.seabattle.internal
       SEABATTLE_NICKSERV_TIMEOUT: 5
-      SEABATTLE_LOG_QUERIES: no
+      SEABATTLE_LOG_QUERIES: "no"
+      EGGDROP_NICK: Seabattle
+      EGGDROP_ALTNICK: SeabattleBot
+      EGGDROP_ADMIN: owner
+      EGGDROP_REAL: Bot for Games.lt
+      EGGDROP_SHORTNICK: SeaBattle bot
+      EGGDROP_SERVERS: irc.seabattle.internal:6667
+      EGGDROP_CHANNELS: "#seabattle"
+      EGGDROP_BOTNET_NICK: seabattle
     links:
       - ngircd
 
@@ -30,7 +38,9 @@ services:
     image: geekduck/ngircd
     hostname: irc.seabattle.internal
     volumes:
-      - $(pwd)/docker-app-configs/ngircd.conf:/etc/ngircd/ngircd.conf:ro
+      - ./docker-data/configs/ngircd.conf:/etc/ngircd/ngircd.conf:ro
+    ports:
+      - 6667
 
   kiwiirc:
     restart: unless-stopped
@@ -46,4 +56,6 @@ services:
     links:
       - ngircd
     volumes:
-      - $(pwd)/docker-app-configs/kiwiirc.js:/app/config.js:ro
+      - ./docker-data/configs/kiwiirc.js:/app/config.js:ro
+    ports:
+      - 80

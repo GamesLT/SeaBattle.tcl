@@ -172,3 +172,4 @@ pip-log.txt
 
 pid.seabattle
 *.komodoproject
+*.out

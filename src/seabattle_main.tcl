@@ -17,6 +17,14 @@
 # This is where    the evil TCL code starts, read at your peril!  #
 ################################################################
 
+proc ::read_env { name default_value } {
+    if { [info exists $::env($name) ] } {
+        return $::env($name)
+    } else {
+        return $default_value
+    }
+}
+
 set spath [file dirname [info script]]
 
 source [file join $spath "seabattle_config.tcl"]
@@ -65,14 +73,6 @@ proc isadmin { nick }  {
 proc nickserv_identify { nick host hand arg txt } { 
     global bot_pass nickserv_host
     putquick "PRIVMSG nickserv@$nickserv_host :identify $bot_pass"
-}
-
-proc read_env { name default_value } {
-    if { [info exists $::env(name) ] } {
-        return $::env(name)
-    } else {
-        return default_value
-    }
 }
 
 proc is_good_command { type text } {
