@@ -1,4 +1,4 @@
-CREATE TABLE `Users` (
+CREATE TABLE IF NOT EXISTS `Users` (
   id         INT UNSIGNED           AUTO_INCREMENT PRIMARY KEY,
   Nick       VARCHAR(30)            NOT NULL,
   Admin      ENUM ('true', 'false') NOT NULL,
@@ -10,40 +10,37 @@ CREATE TABLE `Users` (
   StatLost   INT                    NOT NULL DEFAULT 0,
   LastLogged TIMESTAMP              NULL,
   LastAction TIMESTAMP              DEFAULT CURRENT_TIMESTAMP,
-  command    VARCHAR(255)           NULL 
+  command    VARCHAR(255)           NULL,
+  INDEX(`Admin`),
+  UNIQUE(`Nick`)
 );
 
-CREATE TABLE `Help` (
+CREATE TABLE IF NOT EXISTS `Help` (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `Item`        VARCHAR(255) NOT NULL,
   `Description` TEXT,
-  `Syntax`      VARCHAR(255)
+  `Syntax`      VARCHAR(255),
+  UNIQUE(`Item`)
 );
 
-CREATE TABLE settings (
+CREATE TABLE IF NOT EXISTS settings (
   id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `Setting` VARCHAR(255) NOT NULL,
-  `Value`   VARCHAR(255) NOT NULL
+  `Value`   VARCHAR(255) NOT NULL,
+  UNIQUE( `Setting`)
 );
 
-CREATE UNIQUE INDEX settings_setting ON settings (`Setting`);
-
-CREATE TABLE TodoList (
+CREATE TABLE IF NOT EXISTS TodoList (
   id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `Command` VARCHAR(255) NOT NULL,
   Arguments VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Seabattle (
+CREATE TABLE IF NOT EXISTS Seabattle (
   id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   Nick    VARCHAR(30) NOT NULL,
   Value   CHAR(1)     NOT NULL,
   row     CHAR(1)     NOT NULL,
-  collumn CHAR(1)     NOT NULL
+  collumn CHAR(1)     NOT NULL,
+  INDEX( `Nick`, `row`, `collumn`)
 );
-
-ALTER TABLE `Users` ADD INDEX(`Admin`);
-ALTER TABLE `Users` ADD UNIQUE(`Nick`);
-ALTER TABLE `Help` ADD UNIQUE(`Item`);
-ALTER TABLE `settings` ADD UNIQUE( `Setting`);
-ALTER TABLE `Seabattle` ADD INDEX( `Nick`, `row`, `collumn`);

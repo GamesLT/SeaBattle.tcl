@@ -51,8 +51,8 @@ var conf = {
     },
     client: {
         server: read_env('KIWI_SERVER_IP', '127.0.0.1'),
-        port:   read_env('KIWI_SERVER_PORT', 6667),
-        ssl:    read_env('KIWI_SERVER_SSL', false),
+        port:   parseInt(read_env('KIWI_SERVER_PORT', 6667)),
+        ssl:    !!parseInt(read_env('KIWI_SERVER_SSL', "0")),
         channel: read_env('KIWI_JOIN_CHANNEL', '#seabattle'),
         channel_key: '',
         nick:    read_env('KIWI_NICK', 'kiwi_?'),
@@ -82,7 +82,7 @@ var conf = {
 };
 
 conf.servers.push({
-    port:   read_env('KIWI_PORT', 7778),
+    port:   parseInt(read_env('KIWI_PORT', 7778)),
     address: read_env('KIWI_BIND', "0.0.0.0")
 });
 

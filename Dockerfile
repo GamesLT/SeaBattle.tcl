@@ -46,15 +46,19 @@ ARG EGGDROP_LISTEN_BOTS_PORT=3333
 ARG EGGDROP_OWNERS=""
 ARG EGGDROP_SYSTEM_SCRIPTS="alltools action.fix compat userinfo"
 ARG EGGDROP_SYSTEM_HELPS=userinfo
+ARG SEABATTLE_DB_USER
+ARG SEABATTLE_DB_PASS
+ARG SEABATTLE_DB_HOST
+ARG SEABATTLE_DB_NAME
 
 ENV SEABATTLE_QSTAT_FLAG=${SEABATTLE_QSTAT_FLAG} \
     SEABATTLE_BOT_PASS=${SEABATTLE_BOT_PASS} \
     SEABATTLE_SKYSTATS_MAX=${SEABATTLE_SKYSTATS_MAX} \
     SEABATTLE_SKYSTATS_I=${SEABATTLE_SKYSTATS_I} \
-    SEABATTLE_DB_USER=root \
-    SEABATTLE_DB_PASS=SeaBattle_8801711703 \
-    SEABATTLE_DB_HOST=127.0.0.1 \
-    SEABATTLE_DB_NAME=eggdrop_seabattle \
+    SEABATTLE_DB_USER=${SEABATTLE_DB_USER} \
+    SEABATTLE_DB_PASS=${SEABATTLE_DB_PASS} \
+    SEABATTLE_DB_HOST=${SEABATTLE_DB_HOST} \
+    SEABATTLE_DB_NAME=${SEABATTLE_DB_NAME} \
     SEABATTLE_LANGUAGE=${SEABATTLE_LANGUAGE} \
     SEABATTLE_GRID_HORIZONTAL_WORD=${SEABATTLE_GRID_HORIZONTAL_WORD} \
     SEABATTLE_GRID_VERTICAL_WORD=${SEABATTLE_GRID_VERTICAL_WORD} \
@@ -99,7 +103,7 @@ ENV SEABATTLE_QSTAT_FLAG=${SEABATTLE_QSTAT_FLAG} \
 
 RUN apt-get update && \
     apt-get -y upgrade && \
-    apt-get install -y telnet sudo mysqltcl eggdrop && \
+    apt-get install -y telnet sudo mysqltcl eggdrop mysql-client netcat && \
     mkdir -p /srv/eggdrop/data && \
     mkdir -p /srv/eggdrop/apps
 
@@ -107,19 +111,13 @@ COPY ./docker-data/configs/eggdrop.conf /etc/eggdrop.conf
 COPY ./docker-data/scripts/entrypoint.sh /usr/bin/run.sh
 COPY ./install.sql /srv/backups/install.sql
 COPY ./src/ /srv/eggdrop/apps/seabattle/
-COPY ./docker-data/scripts/configure-db.sh /tmp/configure-db.sh
 
-RUN chmod +x /tmp/configure-db.sh && \
-    /tmp/configure-db.sh && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    chmod +x /usr/bin/run.sh && \
+RUN chmod +x /usr/bin/run.sh && \
     apt-get clean -y && \
     apt-get autoclean -y && \
     apt-get autoremove -y && \
     useradd -r -U -M -s /bin/false eggdrop && \
-    chown -R eggdrop:eggdrop /srv/eggdrop
+    chown -R eggdrop:eggdrop /srv/eggdrop && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-CMD ["bash"]
-#CMD ["telnet" "localhost" ${EGGDROP_LISTEN_PORT}]
-
-ENTRYPOINT ["/usr/bin/run.sh"]
+ENTRYPOINT ["/usr/bin/env", "bash", "/usr/bin/run.sh"]

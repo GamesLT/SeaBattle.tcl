@@ -30,9 +30,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network "private_network", ip: ip
-  [80, 6667].each do |port|
-    config.vm.network "forwarded_port", guest: port, host: port, host_ip: ip
-  end
+  config.vm.network "forwarded_port", guest: 7778, host: 80, host_ip: ip
+  config.vm.network "forwarded_port", guest: 6667, host: 6667, host_ip: ip
 
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
@@ -45,7 +44,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :docker
   config.vm.provision :docker_compose,
-                      env: { },
                       yml:
                         - "/vagrant/docker-compose.demo.yml",
                       rebuild: true,

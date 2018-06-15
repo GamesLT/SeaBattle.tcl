@@ -1,10 +1,14 @@
-version: "3.0"
+version: '3'
 
 services:
 
   seabattle_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
-    image: gameslt/seabattle.tcl
+    hostname: bot.seabattle.internal
+    #image: gameslt/seabattle.tcl
     environment:
       SEABATTLE_QSTAT_FLAG: .
       SEABATTLE_BOT_PASS: botsky
@@ -12,7 +16,7 @@ services:
       SEABATTLE_SKYSTATS_I: 0
       SEABATTLE_DB_USER: seabattle
       SEABATTLE_DB_PASS: seabattle
-      SEABATTLE_DB_HOST: 127.0.0.1
+      SEABATTLE_DB_HOST: 172.16.0.102
       SEABATTLE_DB_NAME: seabattle
       SEABATTLE_LANGUAGE: en
       SEABATTLE_GRID_HORIZONTAL_WORD: games
@@ -27,35 +31,64 @@ services:
       EGGDROP_ADMIN: owner
       EGGDROP_REAL: Bot for Games.lt
       EGGDROP_SHORTNICK: SeaBattle bot
-      EGGDROP_SERVERS: irc.seabattle.internal:6667
+      EGGDROP_SERVERS: 172.16.0.103:6667
       EGGDROP_CHANNELS: "#seabattle"
       EGGDROP_BOTNET_NICK: seabattle
-    links:
+    depends_on:
+      - mysql
       - ngircd
 
   ngircd:
     restart: unless-stopped
     image: geekduck/ngircd
-    hostname: irc.seabattle.internal
-    volumes:
-      - ./docker-data/configs/ngircd.conf:/etc/ngircd/ngircd.conf:ro
+    domainname: irc.seabattle.internal
     ports:
-      - 6667
+      - 6667:6667
+    networks:
+      virtual_net:
+        ipv4_address: 172.16.0.103
 
   kiwiirc:
     restart: unless-stopped
     image: boxbox/kiwiirc
+    domainname: seabattle.internal
     environment:
-      KIWI_SERVER_IP: irc.seabattle.internal
+      KIWI_SERVER_IP: 192.168.201.65
       KIWI_SERVER_PORT: 6667
       KIWI_JOIN_CHANNEL: '#seabattle'
-      KIWI_NICK: 'kiwi_?'
+      KIWI_NICK: 'web_?'
       KIWI_TITLE: Kiwi IRC
-      KIWI_PORT: 80
+      KIWI_PORT: 7778
       KIWI_BIND: 0.0.0.0
-    links:
-      - ngircd
     volumes:
-      - ./docker-data/configs/kiwiirc.js:/app/config.js:ro
+      - ./docker-data/configs/kiwiirc.js:/app/config.js
     ports:
-      - 80
+      - 7778:7778
+    depends_on:
+      - ngircd
+
+  mysql:
+    restart: unless-stopped
+    image: mysql/mysql-server:5.5
+    domainname: db.seabattle.internal
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_ALLOW_EMPTY_PASSWORD: null
+      MYSQL_ONETIME_PASSWORD: null
+      MYSQL_DATABASE: seabattle
+      MYSQL_USER: seabattle
+      MYSQL_PASSWORD: seabattle
+    networks:
+      virtual_net:
+        ipv4_address: 172.16.0.102
+    volumes:
+      - ./docker-data/logs/mysql:/var/log
+
+networks:
+  virtual_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      -
+        subnet: 172.16.0.0/24
