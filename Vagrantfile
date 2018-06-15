@@ -29,9 +29,20 @@ Vagrant.configure("2") do |config|
     vb.memory = 1024
   end
 
-  config.vm.network "private_network", ip: ip
-  config.vm.network "forwarded_port", guest: 7778, host: 80, host_ip: ip
-  config.vm.network "forwarded_port", guest: 6667, host: 6667, host_ip: ip
+  config.vm.network "private_network",
+                    ip: ip
+  config.vm.network "forwarded_port",
+                    guest: 7778,
+                    host: 80,
+                    guest_ip: ip,
+                    protocol: "tcp",
+                    auto_correct: true
+  config.vm.network "forwarded_port",
+                    guest: 6667,
+                    host: 6667,
+                    guest_ip: ip,
+                    protocol: "tcp",
+                    auto_correct: true
 
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true

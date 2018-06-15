@@ -35,8 +35,8 @@ foreach varname [list "grid_vertical_word" "grid_horizontal_word" "qstat_flag" "
         exit 2
     }
 }
-set grid_width [split grid_horizontal_word ""]
-set grid_height [split grid_vertical_word ""]
+set grid_width [split $grid_horizontal_word ""]
+set grid_height [split $grid_vertical_word ""]
 
 set mpath [file join $spath "tcllibs"]
 set lib_path [file join $spath "lib"]
