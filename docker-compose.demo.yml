@@ -30,10 +30,8 @@ services:
       EGGDROP_ALTNICK: SeabattleBot
       EGGDROP_ADMIN: owner
       EGGDROP_REAL: Bot for Games.lt
-      EGGDROP_SHORTNICK: SeaBattle bot
       EGGDROP_SERVERS: 172.16.0.103:6667
       EGGDROP_CHANNELS: "#seabattle"
-      EGGDROP_BOTNET_NICK: seabattle
     depends_on:
       - mysql
       - ngircd
@@ -44,6 +42,8 @@ services:
     restart: unless-stopped
     image: geekduck/ngircd
     domainname: irc.seabattle.internal
+    expose:
+      - 6667
     ports:
       - 6667:6667
     networks:
@@ -82,11 +82,22 @@ services:
       MYSQL_DATABASE: seabattle
       MYSQL_USER: seabattle
       MYSQL_PASSWORD: seabattle
+    expose:
+      - 3306
     networks:
       virtual_net:
         ipv4_address: 172.16.0.102
-    volumes:
-      - ./docker-data/logs/mysql:/var/log
+
+  redirect:
+    restart: unless-stopped
+    image: cusspvz/redirect
+    domainname: redirect.seabattle.internal
+    environment:
+      REDIRECT: http://192.168.201.65:7778
+    ports:
+      - 80:80
+    networks:
+      - virtual_net
 
 networks:
   virtual_net:

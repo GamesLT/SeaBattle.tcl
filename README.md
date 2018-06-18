@@ -1,43 +1,7 @@
-[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt) ![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592000) [![EN](https://img.shields.io/badge/Language-English-orange.svg)](#description-in-english) [![LT](https://img.shields.io/badge/Language-Lietuvių-orange.svg)](#aprašymas-lietuvių-kalba)
+[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt) ![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592) 
 # Seabattle
 
 ![Screenshot](https://raw.githubusercontent.com/GamesLT/SeaBattle.tcl/master/.screenshot.jpg)
-
-## Aprašymas lietuvių kalba
-
-### Kas tai yra?
-
-Tai yra skriptas, kuris prideda galimybę žaisti klasikinį [Jūros mūšio](https://en.wikipedia.org/wiki/Battleship_(game)) bet kuriame IRC kanale [Eggdrop](http://www.eggheads.org)/[Windrop](http://windrop.sourceforge.net) botams
-
-Šio skripto galimybės/savybės:
- * Veikia tik tekstiniu režimu
- * Tinklo režimas, kuris gali būti žaidžiamas dviejų žaidėjų
- * Naudoja [MySQL](http://mysql.org) kaip duomenų bazę
- * Integruotos vartotojų registracijos
- * Nickserver palaikymas
- * Daugiakalbystės palaikymas
- 
-### Kaip įdiegti?
-
-Pirmiausia įsitikinkite, kad turite jau darbui paruoštą [Eggdrop](http://www.eggheads.org)/[Windrop](http://windrop.sourceforge.net) bot'ą. Kaip tai padaryti, galima sužinoti, aplankius pasirinkto bot'o tinklalapį arba pasigooglinus. Na, o tuomet reikės atlikti šiuos veiksmus:
- * Atsisiųsti [naujausios versijos archyvą](https://github.com/GamesLT/SeaBattle.tcl/releases/latest)
- * Jį išpakuoti 
- * Nukopijuoti `src/` failus, kur botas laiko savo skriptus
- * Pridėti `source seabattle_main.tcl` eilutę `eggdrop.conf` faile (čia gali tekti prirašyti pilną kelią prie `seabattle_main.tcl` pavadinimo)
- * Įdiegti [mysqltcl](http://www.xdobry.de/mysqltcl/) biblioteką (jei naudojatės Windows arba negalite visiškai kontroliuoti serverio, tuomet teks atsisiųsti jau sukompiliuotą *3.02* versiją iš šios bibliotekos tinklalapio ir patalpinti `tcllibs` kataloge, kuris turėtų būti šalia nukopijuoto `seabattle.tcl` failo (jei tokio katalogo nėra, tuomet sukurkite).
- * Sukurti naują MySQL duomenų bazę bei importuoti `seabattle.sql` duomenis
- * Paredaguoti nustatymus `seabattle_config.tcl` skripte
- * Paleisti bot'ą. 
- 
-### Kaip galima prisidėti prie kūrimo?
-
-Visi norintys yra kviečiami prisidėti prie kūrimo. Galima taisyti klaidas ar pridėti kokių nors naujų savybių. Tai galima padaryti sukuriant šios repozitorijos šaką (angl. fork), ją paredaguojant bei sukuriant naują *Pull request*. Jei nežinote, kaip tai padaryti, pabandykite pasinaudoti [interaktyviomis GitHub pamokomis](https://try.github.io/).
-
-Kad būtų paprasčiau bandyti kurti, galima pasinaudoti šioje repozitorijoje esančia [Vagrant](http://vagrantup.com) konfiguracija, kad pasileisti jau paruoštą virtualią mašiną su veikiančiu bot'u. Tuomet tereikia nuklonavus šią repozitoriją tam pačiame kataloge įvykdyti `vagrant up` komandą. Tuomet bus įmanoma prisijungti prie naujo IRC serverio, kurio adresas - `seabattle.dev`, bei apsilankyti  #seabattle kanale. Būtent ten ir sedės botas.
-
-****
-
-## Description in English
 
 ### What is this?
 
