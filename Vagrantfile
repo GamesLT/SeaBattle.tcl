@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'yaml'
+
 # Params
 domain="seabattle.test"
 ip="192.168.201.65"
@@ -8,8 +10,8 @@ ip="192.168.201.65"
 # Installs required plugins if not installed
 if ARGV.include?('up') || ARGV.include?('reload')
   plugins = [
-    'vagrant-docker-compose',
-    'vagrant-hostmanager'
+      'vagrant-docker-compose',
+      'vagrant-hostmanager'
   ].select do |plugin|
     !Vagrant.has_plugin?(plugin)
   end.join(' ')
@@ -26,7 +28,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
-    vb.memory = 1024
+    vb.memory = 2048
   end
 
   config.vm.network :private_network,
@@ -35,17 +37,6 @@ Vagrant.configure("2") do |config|
                     guest: 80,
                     host: 80,
                     host_ip: ip,
-                    auto_correct: false
-  config.vm.network :forwarded_port,
-                    guest: 7778,
-                    host: 7778,
-                    host_ip: ip,
-                    auto_correct: false
-  config.vm.network :forwarded_port,
-                    guest: 6667,
-                    host: 6667,
-                    host_ip: ip,
-                    protocol: "tcp",
                     auto_correct: false
 
   config.hostmanager.enabled = true
@@ -60,8 +51,8 @@ Vagrant.configure("2") do |config|
   config.vm.provision :docker
   config.vm.provision :docker_compose,
                       yml:
-                        - "/vagrant/docker-compose.demo.yml",
+                          -"/vagrant/docker-compose.demo.yml",
                       rebuild: true,
-                      project_name: "SeaBattleDemo",
+                      project_name: "BrandShipper",
                       run: "always"
 end

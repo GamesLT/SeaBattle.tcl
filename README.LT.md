@@ -1,3 +1,10 @@
+[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt)
+[![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592)](https://github.com/GamesLT/SeaBattle.tcl/releases)
+[![Docker Build Status](https://img.shields.io/docker/build/gameslt/seabattle.tcl.svg)](https://hub.docker.com/r/gameslt/seabattle.tcl/builds/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/gameslt/seabattle.tcl.svg)](https://hub.docker.com/r/gameslt/seabattle.tcl/)
+[![Readme In English](https://img.shields.io/badge/readme-en-lightgrey.svg)](https://github.com/GamesLT/SeaBattle.tcl/blob/master/README.md)
+[![Readme In Lithuanian](https://img.shields.io/badge/readme-lt-yellowgreen.svg)](https://github.com/GamesLT/SeaBattle.tcl/blob/master/README.LT.md)
+
 # Seabattle
 
 ![Screenshot](https://raw.githubusercontent.com/GamesLT/SeaBattle.tcl/master/.screenshot.jpg)
@@ -38,7 +45,6 @@ Taip pat galima naudoti ir kitus šio paketo konfiguravimo parametrus. Štai pil
 
 | Parametras | Reikšmė pagal nutylėjimą | Kam naudojamas? |
 | ---------- | ------------------------ | --------------- |
-| SEABATTLE_QSTAT_FLAG | . | Buvo naudota ankstesnėse versijose, dabar tik deklaruojamas parametras išlaikyti suderinamumą |
 | SEABATTLE_BOT_PASS | botsky | Bot'o slaptažodis |
 | **_SEABATTLE_DB_USER_** | | MySQL duomenų bazės vartotojo vardas |
 | **_SEABATTLE_DB_PASS_** | | MySQL duomenų bazės vartotojo slaptažodis |
@@ -46,7 +52,7 @@ Taip pat galima naudoti ir kitus šio paketo konfiguravimo parametrus. Štai pil
 | **_SEABATTLE_DB_NAME_** | | MySQL duomenų bazės pavadinimas |
 | SEABATTLE_LANGUAGE | en | Žaidimo kalba. Gali būti `en` arba `lt` |
 | SEABATTLE_GRID_HORIZONTAL_WORD | games | Horizontalus žodis, kuris bus naudojamas langeliams (ženklai turi nesikartoto arba žaidimas gali veikti blogai) |
-| SEABATTLE_GRID_VERTICAL_WORD | 12345 | Horizontalus žodis, kuris bus naudojamas langeliams (ženklai turi nesikartoto arba žaidimas gali veikti blogai) |
+| SEABATTLE_GRID_VERTICAL_WORD | 12345 | Vertikalus žodis, kuris bus naudojamas langeliams (ženklai turi nesikartoto arba žaidimas gali veikti blogai) |
 | SEABATTLE_SHIPS_COUNT | 5 | Po kiek laivų gaus abi pusės? |
 | SEABATTLE_NICKSERV_AUTH_NEEDED | false | Ar reikalinga NickServ autentificija pačiam bot'ui? |
 | SEABATTLE_NICKSERV_HOST | irc.data.lt | NickServ autentifikacijos hostas |
@@ -98,4 +104,4 @@ Pirmiausia įsitikinkite, kad turite jau darbui paruoštą [Eggdrop](http://www.
 
 Visi norintys yra kviečiami prisidėti prie kūrimo. Galima taisyti klaidas ar pridėti kokių nors naujų savybių. Tai galima padaryti sukuriant šios repozitorijos šaką (angl. fork), ją paredaguojant bei sukuriant naują *Pull request*. Jei nežinote, kaip tai padaryti, pabandykite pasinaudoti [interaktyviomis GitHub pamokomis](https://try.github.io/).
 
-Kad būtų paprasčiau bandyti kurti, galima pasinaudoti šioje repozitorijoje esančia [Vagrant](http://vagrantup.com) konfiguracija, kad pasileisti jau paruoštą virtualią mašiną su veikiančiu bot'u. Tuomet tereikia nuklonavus šią repozitoriją tam pačiame kataloge įvykdyti `vagrant up` komandą. Tuomet bus įmanoma prisijungti prie naujo IRC serverio, kurio adresas - `seabattle.dev`, bei apsilankyti  #seabattle kanale. Būtent ten ir sedės botas.
+Kad būtų paprasčiau bandyti kurti, galima pasinaudoti šioje repozitorijoje esančia [Vagrant](http://vagrantup.com) konfiguracija, kad pasileisti jau paruoštą virtualią mašiną su veikiančiu bot'u. Tuomet tereikia nuklonavus šią repozitoriją tam pačiame kataloge įvykdyti `vagrant up` komandą. Tuomet bus įmanoma prisijungti prie naujo IRC serverio, kurio adresas - `seabattle.test`, bei apsilankyti  #seabattle kanale. Būtent ten ir sedės botas.

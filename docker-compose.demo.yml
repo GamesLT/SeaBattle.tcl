@@ -3,12 +3,12 @@ version: '3'
 services:
 
   seabattle_bot:
-    #build:
-    #  context: .
-    #  dockerfile: Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     hostname: bot.seabattle.internal
-    image: gameslt/seabattle.tcl
+    #image: gameslt/seabattle.tcl
     environment:
       SEABATTLE_QSTAT_FLAG: .
       SEABATTLE_BOT_PASS: botsky
