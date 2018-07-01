@@ -53,6 +53,6 @@ Vagrant.configure("2") do |config|
                       yml:
                           -"/vagrant/docker-compose.demo.yml",
                       rebuild: true,
-                      project_name: "BrandShipper",
+                      project_name: "SeaBattle",
                       run: "always"
 end
