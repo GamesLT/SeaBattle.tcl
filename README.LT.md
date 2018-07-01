@@ -96,7 +96,7 @@ Pirmiausia įsitikinkite, kad turite jau darbui paruoštą [Eggdrop](http://www.
  * Nukopijuoti `src/` failus, kur botas laiko savo skriptus
  * Pridėti `source seabattle_main.tcl` eilutę `eggdrop.conf` faile (čia gali tekti prirašyti pilną kelią prie `seabattle_main.tcl` pavadinimo)
  * Įdiegti [mysqltcl](http://www.xdobry.de/mysqltcl/) biblioteką (jei naudojatės Windows arba negalite visiškai kontroliuoti serverio, tuomet teks atsisiųsti jau sukompiliuotą *3.02* versiją iš šios bibliotekos tinklalapio ir patalpinti `tcllibs` kataloge, kuris turėtų būti šalia nukopijuoto `seabattle.tcl` failo (jei tokio katalogo nėra, tuomet sukurkite).
- * Sukurti naują MySQL duomenų bazę bei importuoti `seabattle.sql` duomenis
+ * Sukurti naują MySQL duomenų bazę bei importuoti `install.sql` duomenis
  * Paredaguoti nustatymus `seabattle_config.tcl` skripte
  * Paleisti bot'ą. 
  

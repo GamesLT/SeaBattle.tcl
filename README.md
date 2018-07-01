@@ -95,7 +95,7 @@ First thing what you need is to make sure that your [Eggdrop](http://www.egghead
  * Copy `src/` files into folder for your bot scripts
  * Add `source seabattle_main.tcl` line in your `eggdrop.conf` file (NOTE: you need to prefix `seabattle_main.tcl` with correct path)
  * Install [mysqltcl](http://www.xdobry.de/mysqltcl/) library (if you use bot on windows or on shared server download compiled *3.02* version and put in `tcllibs` (create if this folder doesn't exists in your system!) subfolder in same folder where `seabattle.tcl` is placed.
- * Create new MySQL database and import there `seabattle.sql` 
+ * Create new MySQL database and import there `install.sql` 
  * Edit settings in `seabattle_config.tcl`
  * Run your bot. 
  
