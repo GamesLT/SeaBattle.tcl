@@ -1,9 +1,4 @@
-[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt)
-[![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592)](https://github.com/GamesLT/SeaBattle.tcl/releases)
-[![Docker Build Status](https://img.shields.io/docker/build/gameslt/seabattle.tcl.svg)](https://hub.docker.com/r/gameslt/seabattle.tcl/builds/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/gameslt/seabattle.tcl.svg)](https://hub.docker.com/r/gameslt/seabattle.tcl/)
-[![Readme In English](https://img.shields.io/badge/readme-en-lightgrey.svg)](https://github.com/GamesLT/SeaBattle.tcl/blob/master/README.md)
-[![Readme In Lithuanian](https://img.shields.io/badge/readme-lt-yellowgreen.svg)](https://github.com/GamesLT/SeaBattle.tcl/blob/master/README.LT.md)
+[![License](https://img.shields.io/github/license/GamesLT/SeaBattle.tcl.svg?maxAge=2592000)](License.txt) [![GitHub release](https://img.shields.io/github/release/GamesLT/SeaBattle.tcl.svg?maxAge=2592)](https://github.com/GamesLT/SeaBattle.tcl/releases) [![Docker Build Status](https://img.shields.io/docker/build/gameslt/seabattle.tcl.svg)](https://hub.docker.com/r/gameslt/seabattle.tcl/builds/) [![Docker Pulls](https://img.shields.io/docker/pulls/gameslt/seabattle.tcl.svg)](https://hub.docker.com/r/gameslt/seabattle.tcl/) [![Readme In English](https://img.shields.io/badge/readme-en-lightgrey.svg)](https://github.com/GamesLT/SeaBattle.tcl/blob/master/README.md) [![Readme In Lithuanian](https://img.shields.io/badge/readme-lt-yellowgreen.svg)](https://github.com/GamesLT/SeaBattle.tcl/blob/master/README.LT.md)
 
 # Seabattle
 
